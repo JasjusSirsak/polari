@@ -1,0 +1,2335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Polari - Twitter Sentiment Analysis</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css"> 
+    <link rel="stylesheet" href="css/modals.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+        :root {
+            --bg-primary: #1a1d23;
+            --bg-secondary: #22262e;
+            --text-primary: #f8f9fa;
+            --text-secondary: #adb5bd;
+            --accent-color: #22b8cf;
+            --accent-gradient: linear-gradient(135deg, #22b8cf 0%, #38d9a9 100%);
+            --accent-light: rgba(34, 184, 207, 0.15);
+            --glass-bg: rgba(34, 38, 46, 0.6);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+            --glass-blur: blur(8px);
+            --transition-speed: 0.3s;
+            --success-color: #38d9a9;
+            --warning-color: #ff922b;
+            --error-color: #ff6b6b;
+            --danger-color: #ff6b6b;
+        }
+
+        [data-theme="light"] {
+            --bg-primary: #f8f9fa;
+            --bg-secondary: #ffffff;
+            --text-primary: #212529;
+            --text-secondary: #6c757d;
+            --glass-bg: rgba(255, 255, 255, 0.7);
+            --glass-border: rgba(0, 0, 0, 0.1);
+            --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent-color);
+            border-radius: 4px;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(34, 184, 207, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 90% 80%, rgba(56, 217, 169, 0.1) 0%, transparent 50%);
+            background-attachment: fixed;
+            min-height: 100vh;
+            transition: background-color var(--transition-speed);
+            overflow-x: hidden;
+        }
+
+        /* NAVBAR STYLES */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: var(--glass-bg);
+            backdrop-filter: var(--glass-blur);
+            -webkit-backdrop-filter: var(--glass-blur);
+            border-bottom: 1px solid var(--glass-border);
+            z-index: 1000;
+        }
+
+        .navbar-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 15px 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo-nav {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--accent-gradient);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: white;
+        }
+
+        .logo-text h1 {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 2px;
+        }
+
+        .logo-text p {
+            font-size: 11px;
+            color: var(--text-secondary);
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 30px;
+            margin: 0;
+            padding: 0;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            color: var(--text-secondary);
+            font-weight: 500;
+            font-size: 15px;
+            padding: 8px 12px;
+            border-radius: 8px;
+            transition: all var(--transition-speed);
+        }
+
+        .nav-link:hover {
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .nav-link.active {
+            color: var(--accent-color);
+            background: var(--accent-light);
+        }
+
+        .nav-link i {
+            font-size: 16px;
+        }
+
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        /* PROFILE DROPDOWN */
+        .profile-container {
+            position: relative;
+            z-index: 1001;
+        }
+
+        .user-profile-nav {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 12px;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all var(--transition-speed);
+        }
+
+        .user-profile-nav:hover {
+            background: var(--accent-light);
+            border-color: var(--accent-color);
+        }
+
+        .user-avatar-nav {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--accent-gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 16px;
+            color: white;
+        }
+
+        .user-info-nav {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .user-name-nav {
+            font-weight: 600;
+            font-size: 14px;
+            max-width: 120px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .user-email-nav {
+            font-size: 11px;
+            color: var(--text-secondary);
+            max-width: 120px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .profile-dropdown {
+            position: absolute;
+            top: calc(100% + 10px);
+            right: 0;
+            width: 220px;
+            background: var(--glass-bg);
+            backdrop-filter: var(--glass-blur);
+            -webkit-backdrop-filter: var(--glass-blur);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            box-shadow: var(--glass-shadow);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all var(--transition-speed);
+            z-index: 1002;
+        }
+
+        .profile-dropdown.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .dropdown-menu {
+            padding: 8px;
+        }
+
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 15px;
+            border-radius: 8px;
+            text-decoration: none;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all var(--transition-speed);
+        }
+
+        .dropdown-item:hover {
+            background: var(--accent-light);
+        }
+
+        .dropdown-item i {
+            width: 20px;
+            color: var(--accent-color);
+        }
+
+        .dropdown-divider {
+            height: 1px;
+            background: var(--glass-border);
+            margin: 8px 15px;
+        }
+
+        .dropdown-item.logout {
+            color: var(--error-color);
+        }
+
+        .dropdown-item.logout i {
+            color: var(--error-color);
+        }
+
+        /* MODAL STYLES */
+        .modal {
+            position: fixed;
+            inset: 0;
+            z-index: 10000;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            padding: 20px;
+        }
+
+        .modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background: var(--glass-bg);
+            backdrop-filter: var(--glass-blur);
+            -webkit-backdrop-filter: var(--glass-blur);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            max-width: 600px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            transform: scale(0.9);
+            opacity: 0;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .modal.active .modal-content {
+            transform: scale(1);
+            opacity: 1;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 25px 30px;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .modal-header h2 {
+            font-size: 22px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .modal-header h2 i {
+            color: var(--accent-color);
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 28px;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+
+        .modal-close:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-primary);
+        }
+
+        .modal-body {
+            padding: 30px;
+        }
+
+        .modal-footer {
+            padding: 20px 30px;
+            border-top: 1px solid var(--glass-border);
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+        }
+
+        /* MAIN CONTAINER */
+        .container {
+            max-width: 1400px;
+            margin: 80px auto 0;
+            padding: 40px 30px;
+        }
+
+        /* HERO SECTION */
+        .hero-section {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .hero-title {
+            font-size: 48px;
+            font-weight: 800;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 15px;
+        }
+
+        .hero-subtitle {
+            font-size: 20px;
+            color: var(--text-secondary);
+            margin-bottom: 30px;
+        }
+
+        .hero-stats {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-top: 30px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--accent-color);
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-top: 5px;
+        }
+
+        /* HOW TO USE SECTION */
+        .how-to-section {
+            background: var(--glass-bg);
+            backdrop-filter: var(--glass-blur);
+            -webkit-backdrop-filter: var(--glass-blur);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 35px;
+            margin-bottom: 40px;
+            box-shadow: var(--glass-shadow);
+        }
+
+        .section-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title i {
+            color: var(--accent-color);
+        }
+
+        .section-description {
+            color: var(--text-secondary);
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .steps-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .step-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 25px;
+            transition: all var(--transition-speed);
+        }
+
+        .step-card:hover {
+            transform: translateY(-5px);
+            background: var(--accent-light);
+            border-color: var(--accent-color);
+        }
+
+        .step-number {
+            width: 40px;
+            height: 40px;
+            background: var(--accent-gradient);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 18px;
+            margin-bottom: 15px;
+        }
+
+        .step-title {
+            font-weight: 600;
+            font-size: 16px;
+            margin-bottom: 8px;
+        }
+
+        .step-desc {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        .colab-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: linear-gradient(135deg, #F9AB00 0%, #F57C00 100%);
+            color: white;
+            padding: 14px 28px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 15px;
+            transition: all var(--transition-speed);
+            box-shadow: 0 4px 15px rgba(249, 171, 0, 0.3);
+        }
+
+        .colab-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(249, 171, 0, 0.4);
+        }
+
+        .colab-button i {
+            font-size: 20px;
+        }
+
+        /* UPLOAD SECTION */
+        .upload-section {
+            background: var(--glass-bg);
+            backdrop-filter: var(--glass-blur);
+            -webkit-backdrop-filter: var(--glass-blur);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 35px;
+            box-shadow: var(--glass-shadow);
+        }
+
+        .file-drop-zone {
+            border: 2px dashed var(--glass-border);
+            border-radius: 16px;
+            padding: 50px 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all var(--transition-speed);
+            background: rgba(255, 255, 255, 0.03);
+            margin-bottom: 25px;
+        }
+
+        .file-drop-zone:hover {
+            border-color: var(--accent-color);
+            background: var(--accent-light);
+        }
+
+        .file-drop-zone.dragover {
+            border-color: var(--accent-color);
+            background: var(--accent-light);
+            transform: scale(1.02);
+        }
+
+        .upload-icon {
+            font-size: 64px;
+            color: var(--accent-color);
+            margin-bottom: 20px;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .file-drop-zone p {
+            color: var(--text-secondary);
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        .file-types {
+            color: var(--text-primary);
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 20px;
+        }
+
+        .browse-btn {
+            display: inline-block;
+            background: var(--accent-color);
+            color: white;
+            padding: 12px 30px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all var(--transition-speed);
+            border: none;
+            position: relative;
+            z-index: 10;
+        }
+
+        .browse-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px var(--accent-light);
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        .selected-files {
+            margin-top: 25px;
+        }
+
+        .file-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            border-radius: 10px;
+            padding: 15px 18px;
+            margin-bottom: 12px;
+            transition: all var(--transition-speed);
+        }
+
+        .file-item:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: var(--accent-color);
+        }
+
+        .file-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex: 1;
+        }
+
+        .file-icon {
+            color: var(--accent-color);
+            font-size: 22px;
+        }
+
+        .file-name {
+            font-weight: 500;
+            font-size: 15px;
+        }
+
+        .file-size {
+            color: var(--text-secondary);
+            font-size: 13px;
+            margin-top: 2px;
+        }
+
+        .file-remove {
+            color: var(--error-color);
+            cursor: pointer;
+            background: none;
+            border: none;
+            font-size: 16px;
+            padding: 8px;
+            border-radius: 6px;
+            transition: all var(--transition-speed);
+        }
+
+        .file-remove:hover {
+            background: rgba(255, 107, 107, 0.15);
+        }
+
+        .start-analysis-btn {
+            width: 100%;
+            height: 55px;
+            background: var(--accent-gradient);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all var(--transition-speed);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-top: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .start-analysis-btn:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(34, 184, 207, 0.4);
+        }
+
+        .start-analysis-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* FORM STYLES */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 14px 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-size: 15px;
+            transition: all 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            background: rgba(34, 184, 207, 0.05);
+        }
+
+        /* BUTTON STYLES */
+        .btn-save-profile,
+        .btn-update-password {
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-save-profile:hover,
+        .btn-update-password:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px var(--accent-light);
+        }
+
+        /* TOAST NOTIFICATIONS */
+        .toast-container {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-width: 380px;
+        }
+
+        .toast {
+            background: var(--glass-bg);
+            backdrop-filter: var(--glass-blur);
+            -webkit-backdrop-filter: var(--glass-blur);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 18px 20px;
+            box-shadow: var(--glass-shadow);
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            transform: translateX(120%);
+            opacity: 0;
+            animation: slideIn 0.5s forwards;
+        }
+
+        @keyframes slideIn {
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .toast.fade-out {
+            animation: slideOut 0.4s forwards;
+        }
+
+        @keyframes slideOut {
+            to {
+                transform: translateX(120%);
+                opacity: 0;
+            }
+        }
+
+        .toast-icon {
+            font-size: 22px;
+            margin-top: 2px;
+        }
+
+        .toast.success .toast-icon { color: var(--success-color); }
+        .toast.warning .toast-icon { color: var(--warning-color); }
+        .toast.error .toast-icon { color: var(--error-color); }
+        .toast.info .toast-icon { color: var(--accent-color); }
+
+        .toast-content {
+            flex: 1;
+        }
+
+        .toast-title {
+            font-weight: 600;
+            font-size: 15px;
+            margin-bottom: 5px;
+        }
+
+        .toast-message {
+            color: var(--text-secondary);
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .toast-close {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 16px;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 4px;
+            transition: all var(--transition-speed);
+        }
+
+        .toast-close:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-primary);
+        }
+
+        /* PAGE TRANSITION OVERLAY */
+        .page-transition {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            background: var(--bg-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+            opacity: 0;
+            transform: translateX(0);
+            transition: transform 0.45s ease, opacity 0.45s ease;
+        }
+
+        .page-transition.active {
+            opacity: 1;
+        }
+
+        .page-transition-text {
+            font-size: 16px;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .page-transition-text i {
+            color: var(--accent-color);
+        }
+
+        /* DROPDOWN OVERLAY */
+        .dropdown-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 999;
+            display: none;
+            opacity: 0;
+            transition: opacity var(--transition-speed) ease;
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        .dropdown-overlay.show {
+            opacity: 1;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            .navbar-container {
+                padding: 12px 20px;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .user-info-nav {
+                display: none;
+            }
+
+            .hero-title {
+                font-size: 32px;
+            }
+
+            .hero-subtitle {
+                font-size: 16px;
+            }
+
+            .hero-stats {
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            .steps-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .container {
+                margin-top: 70px;
+                padding: 20px;
+            }
+
+            .toast-container {
+                left: 20px;
+                right: 20px;
+                max-width: none;
+            }
+
+            .modal-content {
+                max-width: 95%;
+                margin: 10px;
+            }
+        }
+
+        /* DEBUG PANEL */
+        .debug-panel {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            background: rgba(0,0,0,0.8);
+            color: lime;
+            padding: 10px;
+            font-family: monospace;
+            font-size: 12px;
+            z-index: 99999;
+            border-radius: 5px;
+            max-width: 300px;
+            max-height: 200px;
+            overflow: auto;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Include modals -->
+    <div id="modals-container"></div>
+    
+    <!-- Debug Panel -->
+    <div class="debug-panel" id="debugPanel"></div>
+
+    <!-- Include database.js -->
+    <script src="js/database.js"></script>
+    <script src="js/modals.js"></script>
+    <script src="js/frontendAnalyzer.js"></script>
+    <script src="js/analyzer.js"></script>
+
+    <script>
+        // ===== DEBUGGING UTILITIES =====
+        function debugLog(message) {
+            const panel = document.getElementById('debugPanel');
+            const logEntry = document.createElement('div');
+            logEntry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            panel.appendChild(logEntry);
+            panel.scrollTop = panel.scrollHeight;
+            console.log(`[DEBUG] ${message}`);
+        }
+
+        // Show debug panel if holding Ctrl+Shift+D
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey && e.shiftKey && e.key === 'D') {
+                const panel = document.getElementById('debugPanel');
+                panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+            }
+        });
+
+        debugLog('🚀 Page loading...');
+
+        // Load modals dynamically
+        document.addEventListener('DOMContentLoaded', function() {
+            debugLog('DOM loaded');
+            
+            fetch('modals.html')
+                .then(response => {
+                    if (!response.ok) {
+                        console.warn('Modals file not found, creating fallback');
+                        createFallbackModals();
+                        return '';
+                    }
+                    return response.text();
+                })
+                .then(html => {
+                    if (html) {
+                        document.getElementById('modals-container').innerHTML = html;
+                        debugLog('✅ Modals loaded successfully');
+                        
+                        // Initialize modal system
+                        if (typeof window.ModalSystem !== 'undefined') {
+                            debugLog('✅ ModalSystem ready');
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading modals:', error);
+                    createFallbackModals();
+                });
+                
+            // Initialize IndexedDB
+            initDatabase();
+        });
+
+        function createFallbackModals() {
+            debugLog('Creating fallback modals');
+            const fallbackHTML = `
+                <!-- Minimal fallback modal structure -->
+                <div id="profileModal" class="modal">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h2><i class="fas fa-user-circle"></i> Profile Settings</h2>
+                            <button class="modal-close" onclick="closeModal('profileModal')">&times;</button>
+                        </div>
+                        <div class="modal-body">
+                            <p>Profile settings will be available here.</p>
+                            <div style="text-align: center; padding: 20px;">
+                                <i class="fas fa-cogs" style="font-size: 48px; color: var(--accent-color); opacity: 0.5;"></i>
+                                <p style="margin-top: 10px; color: var(--text-secondary);">Coming Soon</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="appearanceModal" class="modal">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h2><i class="fas fa-palette"></i> Appearance</h2>
+                            <button class="modal-close" onclick="closeModal('appearanceModal')">&times;</button>
+                        </div>
+                        <div class="modal-body">
+                            <p>Appearance settings will be available here.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="securityModal" class="modal">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h2><i class="fas fa-shield-alt"></i> Security</h2>
+                            <button class="modal-close" onclick="closeModal('securityModal')">&times;</button>
+                        </div>
+                        <div class="modal-body">
+                            <p>Security settings will be available here.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Loading Modal -->
+                <div id="loadingModal" class="modal">
+                    <div class="modal-content" style="max-width: 500px;">
+                        <div class="modal-header">
+                            <h2 class="modal-title">
+                                <i class="fas fa-spinner fa-spin"></i> Processing Files
+                            </h2>
+                            <button class="modal-close" onclick="closeModal('loadingModal')">&times;</button>
+                        </div>
+                        <div class="modal-body">
+                            <div style="text-align: center; padding: 20px;">
+                                <div class="loading-spinner" style="font-size: 48px; color: var(--accent-color); margin-bottom: 20px;">
+                                    <i class="fas fa-spinner fa-spin"></i>
+                                </div>
+                                <h3 id="loadingMessage" style="margin-bottom: 15px;">Memproses file...</h3>
+                                
+                                <div class="loading-progress">
+                                    <div id="loadingProgress" class="loading-progress-fill"></div>
+                                </div>
+                                
+                                <div id="fileList" style="margin-top: 20px; max-height: 200px; overflow-y: auto;">
+                                    <!-- File list akan ditampilkan di sini -->
+                                </div>
+                                
+                                <p style="margin-top: 15px; color: var(--text-secondary); font-size: 14px;">
+                                    Harap tunggu, proses mungkin memakan waktu beberapa saat...
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.getElementById('modals-container').innerHTML = fallbackHTML;
+            debugLog('✅ Fallback modals created');
+        }
+
+        // Simple modal functions for fallback
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.classList.remove('active');
+                document.body.style.overflow = 'auto';
+            }
+        }
+        
+        // ===== FILE UPLOAD SYSTEM - FIXED VERSION =====
+        
+        let selectedFiles = [];
+        let isProcessing = false;
+        
+        // Initialize database
+        async function initDatabase() {
+            debugLog('Initializing database...');
+            if (typeof fileDB !== 'undefined') {
+                try {
+                    await fileDB.init();
+                    debugLog('✅ Database initialized');
+                    
+                    // Check if we need to migrate from localStorage
+                    const hasLocalData = localStorage.getItem('uploadedFiles') || localStorage.getItem('csvRawData');
+                    if (hasLocalData) {
+                        const migrate = confirm('Ditemukan data lama di localStorage. Migrasi ke database baru?');
+                        if (migrate) {
+                            await fileDB.migrateFromLocalStorage();
+                            showToast('Success', 'Data berhasil dimigrasi ke database baru!', 'success');
+                        }
+                    }
+                } catch (error) {
+                    console.error('❌ Database init error:', error);
+                    debugLog('❌ Database error: ' + error.message);
+                    showToast('Warning', 'Mode fallback aktif (localStorage)', 'warning');
+                }
+            } else {
+                debugLog('⚠️ fileDB not available, using localStorage');
+            }
+        }
+        
+        // Main initialization for file upload
+        function initFileUpload() {
+            debugLog('Initializing file upload system...');
+            
+            // Get DOM elements
+            const browseBtn = document.getElementById('browseBtn');
+            const fileInput = document.getElementById('fileInput');
+            const fileDropZone = document.getElementById('fileDropZone');
+            const startAnalysisBtn = document.getElementById('startAnalysisBtn');
+            
+            debugLog(`Elements found: browseBtn=${!!browseBtn}, fileInput=${!!fileInput}, fileDropZone=${!!fileDropZone}`);
+            
+            // ===== FIX: Browse Button Event Handler =====
+            if (browseBtn && fileInput) {
+                debugLog('Setting up browse button...');
+                browseBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    debugLog('Browse button clicked!');
+                    fileInput.click();
+                });
+                
+                // Test the click programmatically
+                setTimeout(() => {
+                    debugLog('Testing browse button...');
+                    // Uncomment to test: browseBtn.click();
+                }, 1000);
+            } else {
+                debugLog('⚠️ Browse button or file input not found!');
+                createFallbackUploadSystem();
+            }
+            
+            // ===== File Input Change Handler =====
+            if (fileInput) {
+                fileInput.addEventListener('change', function(e) {
+                    debugLog(`File input changed: ${e.target.files.length} files`);
+                    const files = Array.from(e.target.files).filter(file => 
+                        file.name.match(/\.(csv|xlsx|txt)$/i)
+                    );
+                    
+                    debugLog(`Filtered files: ${files.length} valid files`);
+                    handleSelectedFiles(files);
+                    fileInput.value = ''; // Reset untuk memungkinkan upload file yang sama
+                });
+            }
+            
+            // ===== Drag and Drop Handlers =====
+            if (fileDropZone) {
+                debugLog('Setting up drag and drop...');
+                
+                fileDropZone.addEventListener('dragover', function(e) {
+                    e.preventDefault();
+                    fileDropZone.classList.add('dragover');
+                    debugLog('Drag over zone');
+                });
+                
+                fileDropZone.addEventListener('dragleave', function() {
+                    fileDropZone.classList.remove('dragover');
+                    debugLog('Drag left zone');
+                });
+                
+                fileDropZone.addEventListener('drop', function(e) {
+                    e.preventDefault();
+                    fileDropZone.classList.remove('dragover');
+                    
+                    const files = Array.from(e.dataTransfer.files).filter(file => 
+                        file.name.match(/\.(csv|xlsx|txt)$/i)
+                    );
+                    
+                    debugLog(`Files dropped: ${files.length}`);
+                    handleSelectedFiles(files);
+                });
+                
+                // Also make clicking the zone trigger file input
+                fileDropZone.addEventListener('click', function(e) {
+                    if (e.target === fileDropZone || e.target.classList.contains('upload-icon') || 
+                        e.target.classList.contains('file-types') || e.target.tagName === 'P') {
+                        debugLog('File drop zone clicked, opening file dialog');
+                        fileInput.click();
+                    }
+                });
+            }
+            
+            // ===== Start Analysis Button =====
+            if (startAnalysisBtn) {
+                startAnalysisBtn.addEventListener('click', startAnalysis);
+                debugLog('Start analysis button ready');
+            }
+            
+            debugLog('✅ File upload system initialized');
+        }
+        
+        // Fallback upload system
+        function createFallbackUploadSystem() {
+            debugLog('Creating fallback upload system...');
+            
+            const uploadSection = document.querySelector('.upload-section');
+            if (!uploadSection) return;
+            
+            // Remove existing fallback if any
+            const existingFallback = document.getElementById('fallbackUpload');
+            if (existingFallback) existingFallback.remove();
+            
+            const fallbackHTML = `
+                <div id="fallbackUpload" style="margin-top: 30px; padding: 25px; background: rgba(34, 184, 207, 0.1); border-radius: 15px; border: 2px dashed var(--accent-color);">
+                    <h3 style="color: var(--accent-color); margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
+                        <i class="fas fa-life-ring"></i> Alternative Upload System
+                    </h3>
+                    <p style="color: var(--text-secondary); margin-bottom: 20px; font-size: 14px;">
+                        System utama sedang dalam perbaikan. Gunakan alternatif di bawah:
+                    </p>
+                    
+                    <div style="display: flex; flex-direction: column; gap: 15px;">
+                        <input type="file" id="fallbackFileInput" 
+                               accept=".csv,.xlsx,.txt" multiple 
+                               style="display: none;">
+                        
+                        <button id="fallbackBrowseBtn" 
+                                style="background: var(--accent-gradient); color: white; 
+                                       border: none; padding: 15px 30px; border-radius: 10px; 
+                                       font-weight: 600; font-size: 16px; cursor: pointer;
+                                       display: flex; align-items: center; justify-content: center; gap: 10px;">
+                            <i class="fas fa-upload"></i> PILIH FILE CSV
+                        </button>
+                        
+                        <div style="text-align: center; color: var(--text-secondary); font-size: 13px;">
+                            <i class="fas fa-info-circle"></i> Drag & drop file ke area ini
+                        </div>
+                    </div>
+                    
+                    <div id="fallbackFileList" style="margin-top: 20px;"></div>
+                </div>
+            `;
+            
+            const fallbackDiv = document.createElement('div');
+            fallbackDiv.innerHTML = fallbackHTML;
+            uploadSection.appendChild(fallbackDiv);
+            
+            // Setup fallback handlers
+            const fallbackBrowseBtn = document.getElementById('fallbackBrowseBtn');
+            const fallbackFileInput = document.getElementById('fallbackFileInput');
+            const fallbackFileList = document.getElementById('fallbackFileList');
+            
+            if (fallbackBrowseBtn && fallbackFileInput) {
+                fallbackBrowseBtn.addEventListener('click', function() {
+                    debugLog('Fallback browse button clicked');
+                    fallbackFileInput.click();
+                });
+                
+                // Drag and drop untuk fallback
+                const fallbackArea = document.getElementById('fallbackUpload');
+                fallbackArea.addEventListener('dragover', function(e) {
+                    e.preventDefault();
+                    fallbackArea.style.borderColor = 'var(--success-color)';
+                    fallbackArea.style.background = 'rgba(56, 217, 169, 0.1)';
+                });
+                
+                fallbackArea.addEventListener('dragleave', function() {
+                    fallbackArea.style.borderColor = 'var(--accent-color)';
+                    fallbackArea.style.background = 'rgba(34, 184, 207, 0.1)';
+                });
+                
+                fallbackArea.addEventListener('drop', function(e) {
+                    e.preventDefault();
+                    fallbackArea.style.borderColor = 'var(--accent-color)';
+                    fallbackArea.style.background = 'rgba(34, 184, 207, 0.1)';
+                    
+                    const files = Array.from(e.dataTransfer.files).filter(file => 
+                        file.name.match(/\.(csv|xlsx|txt)$/i)
+                    );
+                    
+                    debugLog(`Files dropped on fallback: ${files.length}`);
+                    handleSelectedFiles(files);
+                });
+            }
+            
+            if (fallbackFileInput) {
+                fallbackFileInput.addEventListener('change', function(e) {
+                    const files = Array.from(e.target.files);
+                    debugLog(`Fallback file input: ${files.length} files`);
+                    handleSelectedFiles(files);
+                });
+            }
+            
+            debugLog('✅ Fallback upload system created');
+        }
+        
+        function handleSelectedFiles(files) {
+            if (files.length === 0) {
+                showToast('Info', 'Tidak ada file CSV yang valid', 'info');
+                return;
+            }
+            
+            // Check total file size
+            const totalSize = files.reduce((sum, file) => sum + file.size, 0);
+            const maxSize = 50 * 1024 * 1024; // 50MB max
+            
+            if (totalSize > maxSize) {
+                showToast('Error', `Total file terlalu besar (${(totalSize/1024/1024).toFixed(1)}MB). Max 50MB`, 'error');
+                return;
+            }
+            
+            // Add files to selection (prevent duplicates)
+            let addedCount = 0;
+            files.forEach(file => {
+                const isDuplicate = selectedFiles.some(f => 
+                    f.name === file.name && f.size === file.size && f.lastModified === file.lastModified
+                );
+                
+                if (!isDuplicate) {
+                    selectedFiles.push(file);
+                    addedCount++;
+                }
+            });
+            
+            updateSelectedFilesUI();
+            updateStartButton();
+            
+            if (addedCount > 0) {
+                showToast('Success', `${addedCount} file berhasil ditambahkan`, 'success');
+                debugLog(`Added ${addedCount} files, total: ${selectedFiles.length}`);
+            }
+        }
+        
+        function updateSelectedFilesUI() {
+            const container = document.getElementById('selectedFiles');
+            if (!container) {
+                debugLog('⚠️ selectedFiles container not found');
+                return;
+            }
+            
+            if (selectedFiles.length === 0) {
+                container.innerHTML = '';
+                return;
+            }
+            
+            let html = `
+                <div style="margin-bottom: 15px; font-weight: 600; color: var(--accent-color); display: flex; align-items: center; gap: 10px;">
+                    <i class="fas fa-file-alt"></i>
+                    <span>${selectedFiles.length} File Dipilih</span>
+                </div>
+            `;
+            
+            selectedFiles.forEach((file, index) => {
+                const sizeMB = (file.size / 1024 / 1024).toFixed(2);
+                html += `
+                    <div class="file-item" id="file-${index}">
+                        <div class="file-info">
+                            <div class="file-icon">
+                                <i class="fas fa-file-csv"></i>
+                            </div>
+                            <div>
+                                <div class="file-name">${file.name}</div>
+                                <div class="file-size">${sizeMB} MB • ${new Date(file.lastModified).toLocaleDateString()}</div>
+                            </div>
+                        </div>
+                        <button class="file-remove" onclick="removeFile(${index})" 
+                                title="Hapus file" style="background: none; border: none; color: var(--danger-color); cursor: pointer; padding: 8px;">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                `;
+            });
+            
+            // Add clear all button
+            html += `
+                <div style="margin-top: 15px; text-align: right;">
+                    <button onclick="clearAllFiles()" 
+                            style="background: rgba(255, 107, 107, 0.1); border: 1px solid var(--error-color); 
+                                   color: var(--error-color); cursor: pointer; font-size: 14px; 
+                                   padding: 8px 16px; border-radius: 6px; display: inline-flex; 
+                                   align-items: center; gap: 8px; transition: all 0.3s;">
+                        <i class="fas fa-trash"></i> Hapus Semua File
+                    </button>
+                </div>
+            `;
+            
+            container.innerHTML = html;
+            debugLog(`Updated file list UI with ${selectedFiles.length} files`);
+        }
+        
+        window.removeFile = function(index) {
+            if (index >= 0 && index < selectedFiles.length) {
+                const removedFile = selectedFiles[index].name;
+                selectedFiles.splice(index, 1);
+                updateSelectedFilesUI();
+                updateStartButton();
+                showToast('File Dihapus', `${removedFile} telah dihapus`, 'info');
+                debugLog(`Removed file at index ${index}: ${removedFile}`);
+            }
+        }
+        
+        window.clearAllFiles = function() {
+            if (selectedFiles.length > 0) {
+                const fileCount = selectedFiles.length;
+                selectedFiles = [];
+                document.getElementById('fileInput').value = '';
+                const fallbackInput = document.getElementById('fallbackFileInput');
+                if (fallbackInput) fallbackInput.value = '';
+                
+                updateSelectedFilesUI();
+                updateStartButton();
+                showToast('Semua File Dihapus', `${fileCount} file telah dihapus`, 'info');
+                debugLog(`Cleared all ${fileCount} files`);
+            }
+        }
+        
+        function updateStartButton() {
+            const btn = document.getElementById('startAnalysisBtn');
+            if (btn) {
+                const wasDisabled = btn.disabled;
+                btn.disabled = selectedFiles.length === 0 || isProcessing;
+                
+                if (wasDisabled !== btn.disabled) {
+                    debugLog(`Start button disabled: ${btn.disabled}`);
+                }
+                
+                // Update button text based on file count
+                if (selectedFiles.length > 0 && !isProcessing) {
+                    btn.innerHTML = `<i class="fas fa-play-circle"></i> Mulai Analisis (${selectedFiles.length} File)`;
+                } else if (isProcessing) {
+                    btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Memproses...`;
+                } else {
+                    btn.innerHTML = `<i class="fas fa-play-circle"></i> Mulai Analisis`;
+                }
+            }
+        }
+        
+        // Start analysis
+        async function startAnalysis() {
+            if (selectedFiles.length === 0 || isProcessing) {
+                debugLog('Cannot start analysis: no files or already processing');
+                return;
+            }
+            
+            debugLog(`Starting analysis for ${selectedFiles.length} files`);
+            isProcessing = true;
+            updateStartButton();
+            
+            // Show loading modal
+            const loadingModal = document.getElementById('loadingModal');
+            if (loadingModal) {
+                loadingModal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+                debugLog('Loading modal shown');
+            }
+            
+            // Update modal content
+            updateLoadingModal(0, 'Memulai analisis...');
+            
+            try {
+                const processedFiles = [];
+                let successCount = 0;
+                let errorCount = 0;
+                
+                // Process each file
+                for (let i = 0; i < selectedFiles.length; i++) {
+                    const file = selectedFiles[i];
+                    
+                    // Update progress
+                    const progress = ((i + 1) / selectedFiles.length) * 100;
+                    updateLoadingModal(progress, `Memproses ${i + 1}/${selectedFiles.length}: ${file.name}`);
+                    
+                    // Add file to processing list
+                    addFileToProcessingList(file.name, 'processing');
+                    
+                    try {
+                        debugLog(`Processing file ${i+1}: ${file.name}`);
+                        
+                        // Read and parse file
+                        const text = await readFileAsText(file);
+                        const parsedData = parseCSV(text);
+                        
+                        if (parsedData.length === 0) {
+                            throw new Error('Data kosong atau format tidak valid');
+                        }
+                        
+                        // Analyze data
+                        const analyzedData = await analyzeCSVData(parsedData, file.name);
+                        
+                        // Save to database
+                        let savedFile;
+                        if (typeof fileDB !== 'undefined' && fileDB.isSupported && fileDB.isSupported()) {
+                            savedFile = await fileDB.saveFile(file.name, analyzedData);
+                            debugLog(`Saved to IndexedDB: ${file.name}`);
+                        } else {
+                            // Fallback to localStorage
+                            await saveToLocalStorage(file.name, analyzedData);
+                            savedFile = {
+                                id: `local_${Date.now()}_${i}`,
+                                name: file.name,
+                                timestamp: new Date().toISOString()
+                            };
+                            debugLog(`Saved to localStorage: ${file.name}`);
+                        }
+                        
+                        processedFiles.push(savedFile);
+                        updateFileStatus(file.name, 'success', `${analyzedData.length} data diproses`);
+                        successCount++;
+                        
+                    } catch (error) {
+                        console.error(`❌ Error processing ${file.name}:`, error);
+                        updateFileStatus(file.name, 'error', error.message.substring(0, 30));
+                        errorCount++;
+                        debugLog(`Error processing ${file.name}: ${error.message}`);
+                    }
+                }
+                
+                // Save file IDs for dashboard
+                if (processedFiles.length > 0) {
+                    const fileIds = processedFiles.map(f => f.id);
+                    localStorage.setItem('currentFileIds', JSON.stringify(fileIds));
+                    debugLog(`Saved ${fileIds.length} file IDs to localStorage`);
+                    
+                    // Show success message
+                    const successMsg = successCount === selectedFiles.length ?
+                        `${successCount} file berhasil diproses!` :
+                        `${successCount}/${selectedFiles.length} file berhasil diproses (${errorCount} error)`;
+                    
+                    updateLoadingModal(100, successMsg);
+                    debugLog(`Analysis complete: ${successMsg}`);
+                    
+                    // Wait a moment then redirect
+                    setTimeout(() => {
+                        if (loadingModal) {
+                            loadingModal.classList.remove('active');
+                            document.body.style.overflow = 'auto';
+                        }
+                        
+                        if (successCount > 0) {
+                            window.location.href = 'dashboard.html';
+                        } else {
+                            showToast('Error', 'Tidak ada file yang berhasil diproses', 'error');
+                        }
+                    }, 1500);
+                    
+                } else {
+                    throw new Error('Tidak ada file yang berhasil diproses');
+                }
+                
+            } catch (error) {
+                console.error('❌ Analysis error:', error);
+                debugLog(`Analysis failed: ${error.message}`);
+                showToast('Error', `Analisis gagal: ${error.message}`, 'error');
+                
+                if (loadingModal) {
+                    loadingModal.classList.remove('active');
+                    document.body.style.overflow = 'auto';
+                }
+                
+            } finally {
+                isProcessing = false;
+                updateStartButton();
+                debugLog('Analysis process completed');
+            }
+        }
+        
+        // Helper functions
+        function readFileAsText(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    debugLog(`File read: ${file.name} (${e.target.result.length} chars)`);
+                    resolve(e.target.result);
+                };
+                reader.onerror = (e) => {
+                    debugLog(`Error reading file: ${file.name}`);
+                    reject(new Error('Gagal membaca file'));
+                };
+                reader.onabort = (e) => {
+                    debugLog(`File read aborted: ${file.name}`);
+                    reject(new Error('Pembacaan file dibatalkan'));
+                };
+                reader.readAsText(file, 'UTF-8');
+            });
+        }
+        
+        function parseCSV(text) {
+            debugLog(`Parsing CSV: ${text.length} characters`);
+            
+            // Simple CSV parser
+            const lines = text.split('\n');
+            if (lines.length < 2) return [];
+            
+            // Handle different line endings
+            const normalizedLines = lines.map(line => line.trim().replace(/\r/g, ''));
+            
+            // Get headers
+            const firstLine = normalizedLines[0];
+            const headers = firstLine.split(',').map(h => h.trim().replace(/"/g, ''));
+            
+            debugLog(`CSV headers found: ${headers.length} columns`);
+            
+            const data = [];
+            
+            for (let i = 1; i < normalizedLines.length; i++) {
+                const line = normalizedLines[i];
+                if (!line) continue;
+                
+                // Simple CSV parsing (can be improved for quoted fields)
+                const values = line.split(',').map(v => v.trim().replace(/"/g, ''));
+                const item = {};
+                
+                headers.forEach((header, index) => {
+                    if (values[index] !== undefined) {
+                        item[header] = values[index];
+                    }
+                });
+                
+                if (Object.keys(item).length > 0) {
+                    data.push(item);
+                }
+            }
+            
+            debugLog(`Parsed ${data.length} rows from CSV`);
+            return data;
+        }
+        
+        async function analyzeCSVData(data, fileName) {
+            debugLog(`Analyzing ${data.length} items from ${fileName}`);
+            
+            // Use existing analyzer from analyzer.js
+            if (typeof window.analyzeData === 'function') {
+                debugLog('Using window.analyzeData function');
+                return window.analyzeData(data, fileName);
+            }
+            
+            // Fallback simple analysis
+            debugLog('Using fallback analyzer');
+            
+            return data.map((item, index) => {
+                // Simple sentiment analysis based on text content
+                const text = item.text || item.tweet || item.fullText || item.content || '';
+                const lowerText = text.toLowerCase();
+                
+                let klasifikasi = 'netral';
+                if (lowerText.includes('good') || lowerText.includes('great') || lowerText.includes('love') || 
+                    lowerText.includes('happy') || lowerText.includes('awesome') || lowerText.includes('excellent')) {
+                    klasifikasi = 'positif';
+                } else if (lowerText.includes('bad') || lowerText.includes('hate') || lowerText.includes('sad') || 
+                          lowerText.includes('awful') || lowerText.includes('terrible') || lowerText.includes('worst')) {
+                    klasifikasi = 'negatif';
+                }
+                
+                return {
+                    ...item,
+                    klasifikasi: klasifikasi,
+                    keyword: item.keyword || 'general',
+                    fullText: text,
+                    username: item.username || item.user || item.author || '@user',
+                    createdAt: item.createdAt || item.date || item.timestamp || new Date().toISOString(),
+                    processedAt: new Date().toISOString()
+                };
+            });
+        }
+        
+        async function saveToLocalStorage(fileName, data) {
+            try {
+                debugLog(`Saving to localStorage: ${fileName} (${data.length} items)`);
+                
+                // Optimize data for storage
+                const optimizedData = optimizeDataForStorage(data);
+                
+                // Check storage quota
+                const dataStr = JSON.stringify(optimizedData);
+                if (dataStr.length > 4.5 * 1024 * 1024) {
+                    throw new Error('Data terlalu besar untuk localStorage');
+                }
+                
+                // Save to localStorage
+                const fileKey = `file_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+                const fileData = {
+                    name: fileName,
+                    data: optimizedData,
+                    timestamp: new Date().toISOString()
+                };
+                
+                // Get existing files
+                const existingFiles = JSON.parse(localStorage.getItem('uploadedFiles') || '{}');
+                existingFiles[fileKey] = fileData;
+                
+                // Check total size
+                const totalSize = JSON.stringify(existingFiles).length;
+                if (totalSize > 4.5 * 1024 * 1024) {
+                    // Clear some old files
+                    const fileKeys = Object.keys(existingFiles);
+                    if (fileKeys.length > 1) {
+                        delete existingFiles[fileKeys[0]]; // Remove oldest
+                        debugLog('Removed oldest file from localStorage due to space limit');
+                    } else {
+                        throw new Error('Storage penuh, hapus data lama terlebih dahulu');
+                    }
+                }
+                
+                localStorage.setItem('uploadedFiles', JSON.stringify(existingFiles));
+                debugLog(`✅ Saved ${fileName} to localStorage (${dataStr.length} bytes)`);
+                
+            } catch (error) {
+                console.error('❌ LocalStorage save error:', error);
+                debugLog(`LocalStorage save failed: ${error.message}`);
+                throw error;
+            }
+        }
+        
+        function optimizeDataForStorage(data) {
+            if (!Array.isArray(data)) return data;
+            
+            debugLog(`Optimizing ${data.length} items for storage`);
+            
+            return data.map(item => ({
+                klasifikasi: item.klasifikasi || item.sentiment || 'netral',
+                keyword: item.keyword || 'general',
+                fullText: item.fullText ? item.fullText.substring(0, 200) : '',
+                username: item.username || item.user || '@user',
+                createdAt: item.createdAt || item.date || new Date().toISOString(),
+                // Keep only essential fields to save space
+            }));
+        }
+        
+        // Loading modal functions
+        function updateLoadingModal(progress, message) {
+            const progressBar = document.getElementById('loadingProgress');
+            const messageEl = document.getElementById('loadingMessage');
+            
+            if (progressBar) {
+                progressBar.style.width = `${progress}%`;
+            }
+            if (messageEl) {
+                messageEl.textContent = message;
+            }
+            
+            debugLog(`Loading: ${progress}% - ${message}`);
+        }
+        
+        function addFileToProcessingList(fileName, status = 'processing') {
+            const fileList = document.getElementById('fileList');
+            if (!fileList) return;
+            
+            const fileId = `status_${fileName.replace(/[^a-z0-9]/gi, '_')}`;
+            
+            // Check if already added
+            if (document.getElementById(fileId)) return;
+            
+            const fileItem = document.createElement('div');
+            fileItem.className = 'file-item';
+            fileItem.id = fileId;
+            fileItem.innerHTML = `
+                <div class="file-icon">
+                    <i class="fas fa-file-csv"></i>
+                </div>
+                <div class="file-info">
+                    <div class="file-name">${fileName}</div>
+                    <div class="file-status ${status}" id="${fileId}_status">
+                        ${status === 'processing' ? 'Memproses...' : 
+                          status === 'success' ? '✅ Berhasil' : '❌ Error'}
+                    </div>
+                </div>
+            `;
+            
+            fileList.appendChild(fileItem);
+            debugLog(`Added ${fileName} to processing list (${status})`);
+        }
+        
+        function updateFileStatus(fileName, status, message = '') {
+            const fileId = `status_${fileName.replace(/[^a-z0-9]/gi, '_')}_status`;
+            const statusEl = document.getElementById(fileId);
+            if (statusEl) {
+                statusEl.className = `file-status ${status}`;
+                statusEl.textContent = message || 
+                    (status === 'processing' ? '⏳ Memproses...' : 
+                     status === 'success' ? '✅ Berhasil' : '❌ Error');
+                debugLog(`Updated ${fileName} status: ${status} - ${message}`);
+            }
+        }
+        
+        // Toast function
+        function showToast(title, message, type = 'info', duration = 3000) {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `
+                <div class="toast-icon">
+                    <i class="fas fa-${type === 'success' ? 'check-circle' : 
+                                      type === 'error' ? 'exclamation-circle' : 
+                                      type === 'warning' ? 'exclamation-triangle' : 'info-circle'}"></i>
+                </div>
+                <div class="toast-content">
+                    <div class="toast-title">${title}</div>
+                    <div class="toast-message">${message}</div>
+                </div>
+                <button class="toast-close" onclick="this.parentElement.remove()">&times;</button>
+            `;
+            
+            const container = document.getElementById('toastContainer');
+            if (container) {
+                container.appendChild(toast);
+            } else {
+                // Create toast container if it doesn't exist
+                const newContainer = document.createElement('div');
+                newContainer.className = 'toast-container';
+                newContainer.id = 'toastContainer';
+                document.body.appendChild(newContainer);
+                newContainer.appendChild(toast);
+            }
+            
+            debugLog(`Toast: ${type} - ${title}: ${message}`);
+            
+            setTimeout(() => {
+                if (toast.parentElement) {
+                    toast.classList.add('fade-out');
+                    setTimeout(() => {
+                        if (toast.parentElement) toast.remove();
+                    }, 400);
+                }
+            }, duration);
+            
+            return toast;
+        }
+        
+        // ===== NAVBAR FUNCTIONS =====
+        function initNavbar(activePage) {
+            debugLog(`Initializing navbar for page: ${activePage}`);
+            
+            // Set active nav link
+            const navLinks = document.querySelectorAll('.nav-link[data-nav]');
+            navLinks.forEach(link => {
+                const nav = link.getAttribute('data-nav');
+                if (nav === activePage) {
+                    link.classList.add('active');
+                } else {
+                    link.classList.remove('active');
+                }
+            });
+
+            // Smooth navigation
+            const homeLink = document.querySelector('.nav-link[data-nav="home"]');
+            const dashboardLink = document.querySelector('.nav-link[data-nav="dashboard"]');
+
+            if (homeLink) {
+                homeLink.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    if (activePage === 'home') return;
+                    debugLog('Navigating to home');
+                    const direction = activePage === 'dashboard' ? 'right' : 'left';
+                    navigateWithTransition(direction, 'index.html', 'Kembali ke Home...');
+                });
+            }
+
+            if (dashboardLink) {
+                dashboardLink.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    if (activePage === 'dashboard') return;
+                    debugLog('Navigating to dashboard');
+                    const direction = activePage === 'home' ? 'left' : 'right';
+                    navigateWithTransition(direction, 'dashboard.html', 'Membuka Dashboard Analisis...');
+                });
+            }
+
+            // Profile dropdown
+            const profileToggle = document.getElementById('profileToggle');
+            const profileDropdown = document.getElementById('profileDropdown');
+            const dropdownOverlay = document.getElementById('dropdownOverlay');
+            
+            if (!profileToggle || !profileDropdown || !dropdownOverlay) {
+                debugLog('⚠️ Profile dropdown elements not found');
+                return;
+            }
+
+            function showDropdown() {
+                profileDropdown.classList.add('show');
+                dropdownOverlay.style.display = 'block';
+                setTimeout(() => {
+                    dropdownOverlay.classList.add('show');
+                }, 10);
+                debugLog('Profile dropdown shown');
+            }
+
+            function hideDropdown() {
+                profileDropdown.classList.remove('show');
+                dropdownOverlay.classList.remove('show');
+                setTimeout(() => {
+                    dropdownOverlay.style.display = 'none';
+                }, 300);
+                debugLog('Profile dropdown hidden');
+            }
+
+            profileToggle.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const isShowing = profileDropdown.classList.contains('show');
+                if (isShowing) hideDropdown(); else showDropdown();
+            });
+
+            dropdownOverlay.addEventListener('click', hideDropdown);
+            
+            // Close dropdown when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!profileToggle.contains(e.target) && !profileDropdown.contains(e.target)) {
+                    hideDropdown();
+                }
+            });
+
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') hideDropdown();
+            });
+
+            // Dropdown handlers
+            document.getElementById('dropdownProfile')?.addEventListener('click', (e) => {
+                e.preventDefault();
+                hideDropdown();
+                debugLog('Profile menu clicked');
+                // Open profile modal here
+            });
+
+            document.getElementById('dropdownAppearance')?.addEventListener('click', (e) => {
+                e.preventDefault();
+                hideDropdown();
+                debugLog('Appearance menu clicked');
+                // Open appearance modal here
+            });
+
+            document.getElementById('dropdownSecurity')?.addEventListener('click', (e) => {
+                e.preventDefault();
+                hideDropdown();
+                debugLog('Security menu clicked');
+                // Open security modal here
+            });
+
+            document.getElementById('dropdownLogout')?.addEventListener('click', (e) => {
+                e.preventDefault();
+                hideDropdown();
+                debugLog('Logout menu clicked');
+                if (confirm('Are you sure you want to logout?')) {
+                    localStorage.removeItem('analysisData');
+                    localStorage.removeItem('csvRawData');
+                    showToast('Logged out successfully', 'info');
+                    setTimeout(() => {
+                        window.location.href = 'index.html';
+                    }, 1000);
+                }
+            });
+        }
+        
+        function navigateWithTransition(direction, url, message) {
+            debugLog(`Navigating to ${url} with ${direction} transition`);
+            
+            const overlay = document.getElementById('pageTransition');
+            const textEl = document.getElementById('pageTransitionText');
+            if (!overlay) {
+                window.location.href = url;
+                return;
+            }
+
+            if (textEl && message) {
+                textEl.textContent = message;
+            }
+
+            overlay.style.transition = 'none';
+            overlay.style.opacity = '0';
+            overlay.style.transform = direction === 'right'
+                ? 'translateX(-100%)'
+                : 'translateX(100%)';
+
+            void overlay.offsetWidth;
+
+            overlay.style.transition = 'transform 0.45s ease, opacity 0.45s ease';
+            overlay.classList.add('active');
+            overlay.style.transform = 'translateX(0)';
+
+            setTimeout(() => {
+                window.location.href = url;
+            }, 450);
+        }
+        
+        // ===== MAIN INITIALIZATION =====
+        document.addEventListener('DOMContentLoaded', function() {
+            debugLog('=== POLARI SENTIMENT ANALYSIS ===');
+            debugLog('Initializing application...');
+            
+            // Set theme
+            const savedTheme = localStorage.getItem('theme') || 'dark';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            debugLog(`Theme set to: ${savedTheme}`);
+            
+            // Initialize systems
+            initNavbar('home');
+            initFileUpload();
+            
+            // Welcome toast
+            setTimeout(() => {
+                showToast('Selamat Datang di Polari! 🚀', 'Upload file CSV untuk memulai analisis sentiment', 'info');
+                debugLog('Welcome toast shown');
+            }, 1000);
+            
+            // Log initialization complete
+            setTimeout(() => {
+                debugLog('✅ Application initialization complete');
+                debugLog(`Selected files: ${selectedFiles.length}`);
+                debugLog('Ready for file upload!');
+            }, 500);
+        });
+    </script>
+
+    <!-- NAVBAR FIXED -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <a href="index.html" class="logo-nav" data-nav="home">
+                <div class="logo-icon">
+                    <i class="fa-solid fa-rocket"></i>
+                </div>
+                <div class="logo-text">
+                    <h1>Polari</h1>
+                    <p>Sentiment Analysis</p>
+                </div>
+            </a>
+            
+            <ul class="nav-links">
+                <li><a href="index.html" class="nav-link" data-nav="home">
+                    <i class="fas fa-home"></i>
+                    Home
+                </a></li>
+                <li><a href="dashboard.html" class="nav-link" data-nav="dashboard">
+                    <i class="fas fa-chart-bar"></i>
+                    Dashboard
+                </a></li>
+            </ul>
+            
+            <div class="nav-actions">
+                <div class="profile-container">
+                    <div class="user-profile-nav" id="profileToggle">
+                        <div class="user-avatar-nav" id="avatarIcon">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="user-info-nav">
+                            <div class="user-name-nav" id="currentUserName">User</div>
+                            <div class="user-email-nav" id="currentUserEmail">user@polariapp.com</div>
+                        </div>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    
+                    <div class="profile-dropdown" id="profileDropdown">
+                        <div class="dropdown-menu">
+                            <div class="dropdown-item" id="dropdownProfile">
+                                <i class="fas fa-user"></i>
+                                <span>Profile</span>
+                            </div>
+                            <div class="dropdown-item" id="dropdownAppearance">
+                                <i class="fas fa-palette"></i>
+                                <span>Appearance</span>
+                            </div>
+                            <div class="dropdown-item" id="dropdownSecurity">
+                                <i class="fas fa-shield-alt"></i>
+                                <span>Security</span>
+                            </div>
+                            <div class="dropdown-divider"></div>
+                            <div class="dropdown-item logout" id="dropdownLogout">
+                                <i class="fas fa-sign-out-alt"></i>
+                                <span>Logout</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="dropdown-overlay" id="dropdownOverlay"></div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- MAIN CONTENT -->
+    <div class="container">
+        <!-- HERO SECTION -->
+        <section class="hero-section">
+            <h1 class="hero-title">Twitter Sentiment Analysis</h1>
+            <p class="hero-subtitle">Analyze sentiment dari tweets dengan machine learning</p>
+            
+            <div class="hero-stats">
+                <div class="stat-item">
+                    <div class="stat-number">98%</div>
+                    <div class="stat-label">Accuracy</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">&lt;2s</div>
+                    <div class="stat-label">Processing Time</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">10K+</div>
+                    <div class="stat-label">Tweets Analyzed</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- HOW TO USE SECTION -->
+        <section class="how-to-section">
+            <h2 class="section-title">
+                <i class="fas fa-lightbulb"></i>
+                Cara Penggunaan
+            </h2>
+            <p class="section-description">
+                Ikuti langkah-langkah berikut untuk melakukan analisis sentiment Twitter
+            </p>
+
+            <div class="steps-grid">
+                <div class="step-card">
+                    <div class="step-number">1</div>
+                    <h3 class="step-title">Siapkan Data</h3>
+                    <p class="step-desc">Gunakan Google Colab untuk scraping tweets dan membuat file CSV</p>
+                </div>
+                
+                <div class="step-card">
+                    <div class="step-number">2</div>
+                    <h3 class="step-title">Upload CSV</h3>
+                    <p class="step-desc">Upload file CSV yang berisi data tweets ke form di bawah</p>
+                </div>
+                
+                <div class="step-card">
+                    <div class="step-number">3</div>
+                    <h3 class="step-title">Mulai Analisis</h3>
+                    <p class="step-desc">Klik tombol "Mulai Analisis" untuk memproses data</p>
+                </div>
+                
+                <div class="step-card">
+                    <div class="step-number">4</div>
+                    <h3 class="step-title">Lihat Hasil</h3>
+                    <p class="step-desc">Hasil analisis akan ditampilkan di halaman Dashboard</p>
+                </div>
+            </div>
+
+            <a href="https://colab.research.google.com/drive/1dw_GLcmWyxyFjrDWfAUaECydevwi4Af2?usp=sharing" target="_blank" class="colab-button">
+                <i class="fab fa-google"></i>
+                Buka Google Colab untuk Scraping
+            </a>
+        </section>
+
+        <!-- UPLOAD SECTION -->
+        <section class="upload-section">
+            <h2 class="section-title">
+                <i class="fas fa-cloud-upload-alt"></i>
+                Upload CSV File
+            </h2>
+            <p class="section-description">
+                Upload file CSV hasil scraping untuk memulai analisis sentiment
+            </p>
+
+            <div class="file-drop-zone" id="fileDropZone">
+                <div class="upload-icon">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                </div>
+                <p>Drag & drop file CSV di sini atau</p>
+                <div class="file-types">Support format: .csv, .xlsx, .txt</div>
+                <button type="button" class="browse-btn" id="browseBtn">Pilih File</button>
+                <input type="file" id="fileInput" accept=".csv,.xlsx,.txt" multiple>
+            </div>
+
+            <div class="selected-files" id="selectedFiles">
+                <!-- File list akan muncul di sini -->
+            </div>
+
+            <div class="upload-info">
+                <p style="font-size: 14px; color: var(--text-secondary); margin-top: 15px;">
+                    <i class="fas fa-info-circle"></i> 
+                    Mendukung multiple files (max 50MB total). Data disimpan di database browser.
+                </p>
+                <p style="font-size: 12px; color: var(--text-secondary); margin-top: 5px;">
+                    <i class="fas fa-bug"></i> 
+                    Debug: Tekan <strong>Ctrl+Shift+D</strong> untuk melihat debug panel
+                </p>
+            </div>
+
+            <button type="button" class="start-analysis-btn" id="startAnalysisBtn" disabled>
+                <i class="fas fa-play-circle"></i>
+                Mulai Analisis
+            </button>
+        </section>
+    </div>
+
+    <!-- TOAST CONTAINER -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- PAGE TRANSITION OVERLAY -->
+    <div id="pageTransition" class="page-transition">
+        <div class="page-transition-text">
+            <i class="fas fa-spinner fa-spin"></i>
+            <span id="pageTransitionText">Loading...</span>
+        </div>
+    </div>
+
+    <!-- SIMPLE FALLBACK UPLOAD SCRIPT -->
+    <script>
+        // Emergency fallback if everything else fails
+        setTimeout(() => {
+            // Check if main upload system is working
+            const checkUploadSystem = () => {
+                const btn = document.getElementById('browseBtn');
+                const input = document.getElementById('fileInput');
+                
+                if (btn && input) {
+                    // Test if button works
+                    let buttonWorks = false;
+                    const originalClick = btn.onclick;
+                    
+                    btn.addEventListener('click', function testHandler(e) {
+                        buttonWorks = true;
+                        debugLog('Main browse button works!');
+                        btn.removeEventListener('click', testHandler);
+                    });
+                    
+                    // Simulate click after 2 seconds
+                    setTimeout(() => {
+                        if (!buttonWorks) {
+                            debugLog('⚠️ Main upload system may not be working');
+                            createEmergencyUpload();
+                        }
+                    }, 2000);
+                }
+            };
+            
+            checkUploadSystem();
+        }, 3000);
+        
+        function createEmergencyUpload() {
+            debugLog('Creating emergency upload system...');
+            
+            // Create a super simple upload button
+            const emergencyBtn = document.createElement('button');
+            emergencyBtn.innerHTML = '<i class="fas fa-ambulance"></i> EMERGENCY UPLOAD';
+            emergencyBtn.style.cssText = `
+                position: fixed;
+                bottom: 20px;
+                right: 20px;
+                background: linear-gradient(135deg, #ff6b6b 0%, #ff922b 100%);
+                color: white;
+                border: none;
+                border-radius: 50px;
+                padding: 15px 25px;
+                font-weight: bold;
+                font-size: 14px;
+                cursor: pointer;
+                z-index: 99998;
+                box-shadow: 0 5px 20px rgba(255, 107, 107, 0.5);
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            `;
+            
+            const emergencyInput = document.createElement('input');
+            emergencyInput.type = 'file';
+            emergencyInput.accept = '.csv,.xlsx,.txt';
+            emergencyInput.multiple = true;
+            emergencyInput.style.display = 'none';
+            
+            emergencyBtn.addEventListener('click', () => {
+                emergencyInput.click();
+            });
+            
+            emergencyInput.addEventListener('change', (e) => {
+                const files = Array.from(e.target.files);
+                if (files.length > 0) {
+                    alert(`✅ ${files.length} file berhasil dipilih!\n\nKlik "Mulai Analisis" untuk melanjutkan.`);
+                    handleSelectedFiles(files);
+                }
+            });
+            
+            document.body.appendChild(emergencyInput);
+            document.body.appendChild(emergencyBtn);
+            
+            debugLog('✅ Emergency upload system created');
+            
+            // Remove after 30 seconds if everything works
+            setTimeout(() => {
+                if (selectedFiles.length > 0) {
+                    emergencyBtn.remove();
+                    emergencyInput.remove();
+                    debugLog('Emergency upload system removed (not needed)');
+                }
+            }, 30000);
+        }
+    </script>
+</body>
+</html>

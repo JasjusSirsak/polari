@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Polari - Authentication</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+        :root {
+            --bg-primary: #1a1d23;
+            --text-primary: #f8f9fa;
+            --text-secondary: #adb5bd;
+            --accent-color: #22b8cf;
+            --accent-light: rgba(34, 184, 207, 0.15);
+            --glass-bg: rgba(34, 38, 46, 0.6);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+            --glass-blur: blur(8px);
+            --transition-speed: 0.3s;
+            --input-height: 50px; /* Variabel untuk tinggi input yang konsisten */
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        ::-webkit-scrollbar {
+            display: none;
+        }
+        
+        html, body {
+            overflow-x: hidden;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(34, 184, 207, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 90% 80%, rgba(56, 217, 169, 0.1) 0%, transparent 50%);
+            background-attachment: fixed;
+            min-height: 100vh;
+            width: 100%;
+        }
+
+        .auth-page {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            padding: 20px;
+        }
+
+        /* Animated background dots */
+        .dots-bg {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: 0;
+        }
+
+        .dot {
+            position: absolute;
+            background: var(--accent-light);
+            border-radius: 50%;
+            animation: float 15s infinite linear;
+            opacity: 0.5;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0) translateX(0);
+            }
+            25% {
+                transform: translateY(-100px) translateX(100px);
+            }
+            50% {
+                transform: translateY(-50px) translateX(-100px);
+            }
+            75% {
+                transform: translateY(100px) translateX(50px);
+            }
+        }
+
+        /* MAIN CONTAINER */
+        .auth-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            max-width: 1200px;
+            padding: 40px;
+            gap: 80px;
+            z-index: 1;
+            position: relative;
+        }
+
+        /* DESCRIPTION PANEL */
+        .description-panel {
+            flex: 1;
+            max-width: 450px;
+            opacity: 1;
+            transform: translateX(0);
+            transition: all 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Saat login mode, description move to right but NOT fade out */
+        .auth-page.login-mode .description-panel {
+            transform: translateX(600px);
+            opacity: 1; /* Tetap terlihat */
+            pointer-events: auto; /* Tetap bisa diklik */
+        }
+
+        /* FORM PANEL */
+        .form-panel {
+            flex: 1;
+            max-width: 450px;
+            opacity: 1;
+            transform: translateX(0);
+            transition: all 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Saat login mode, form move to left */
+        .auth-page.login-mode .form-panel {
+            transform: translateX(-600px);
+        }
+
+        /* Logo styling */
+        .auth-logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .logo-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--accent-color) 0%, #38d9a9 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+        }
+
+        .auth-logo h1 {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--accent-color);
+        }
+
+        .auth-logo p {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-top: 5px;
+        }
+
+        .welcome-text {
+            font-size: 42px;
+            font-weight: 700;
+            line-height: 1.2;
+            margin-bottom: 20px;
+            color: var(--text-primary);
+            transition: all 0.5s ease;
+        }
+
+        .welcome-text span {
+            color: var(--accent-color);
+        }
+
+        .welcome-subtext {
+            color: var(--text-secondary);
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 40px;
+            transition: all 0.5s ease;
+        }
+        
+        .welcome-subtext a { 
+            color: var(--accent-color); 
+            text-decoration: none;
+            font-weight: 600;
+            padding-bottom: 2px;
+            border-bottom: 2px solid transparent;
+            transition: all var(--transition-speed);
+            cursor: pointer;
+        }
+
+        .welcome-subtext a:hover {
+            border-color: var(--accent-color);
+        }
+
+        /* Features list */
+        .features-list {
+            margin-top: 30px;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 18px;
+            color: var(--text-secondary);
+            font-size: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .feature-item:hover {
+            color: var(--text-primary);
+            transform: translateX(5px);
+        }
+
+        .feature-item i {
+            color: var(--accent-color);
+            margin-right: 12px;
+            font-size: 16px;
+            width: 20px;
+        }
+
+        /* FORM CONTAINER */
+        .auth-form-container {
+            background: var(--glass-bg);
+            backdrop-filter: var(--glass-blur);
+            -webkit-backdrop-filter: var(--glass-blur);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 35px 40px;
+            width: 100%;
+            box-shadow: var(--glass-shadow);
+        }
+
+        /* Auth header */
+        .auth-header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .auth-header h2 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: var(--text-primary);
+        }
+
+        .auth-header p {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .auth-header p a {
+            color: var(--accent-color);
+            text-decoration: none;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .auth-header p a:hover {
+            text-decoration: underline;
+        }
+
+        /* Form tabs */
+        .form-selector {
+            margin-bottom: 25px;
+            border-bottom: 1px solid var(--glass-border);
+            display: flex;
+        }
+
+        .form-tab {
+            flex: 1;
+            text-align: center;
+            padding: 15px 0;
+            cursor: pointer;
+            font-weight: 600;
+            color: var(--text-secondary);
+            transition: all var(--transition-speed);
+            border-bottom: 3px solid transparent;
+        }
+
+        .form-tab.active {
+            color: var(--accent-color);
+            border-bottom: 3px solid var(--accent-color);
+        }
+
+        .form-tab:hover {
+            color: var(--accent-color);
+        }
+
+        /* Form content */
+        .form-content {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .form-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { 
+                opacity: 0; 
+                transform: translateY(10px); 
+            }
+            to { 
+                opacity: 1; 
+                transform: translateY(0); 
+            }
+        }
+
+        /* Form styling - PERBAIKAN LENGKAP UNTUK KOTAK FORM */
+        .form-row {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+            align-items: flex-start; /* Memastikan item sejajar di atas */
+        }
+
+        .input-group {
+            flex: 1;
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-secondary);
+            font-weight: 600;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .input-wrapper {
+            position: relative;
+            height: var(--input-height); /* Tinggi yang konsisten */
+            width: 100%;
+        }
+
+        /* Base input styling untuk SEMUA input */
+        .input-wrapper input,
+        .input-field {
+            width: 100%;
+            height: 100%; /* Menggunakan tinggi penuh dari wrapper */
+            padding: 0 16px; /* Padding horizontal saja */
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 15px;
+            transition: all var(--transition-speed);
+            font-family: 'Inter', sans-serif;
+            box-sizing: border-box;
+            line-height: var(--input-height); /* Vertikal center teks */
+        }
+
+        /* Special styling untuk password input dengan ruang untuk ikon */
+        .input-wrapper.has-icon input {
+            padding-right: 45px; /* Ruang untuk ikon */
+        }
+
+        .input-wrapper input:focus,
+        .input-field:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 10px var(--accent-light);
+        }
+
+        .input-wrapper input::placeholder,
+        .input-field::placeholder {
+            color: var(--text-secondary);
+            opacity: 0.7;
+        }
+
+        /* Password toggle icon */
+        .password-toggle-icon {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 14px;
+            transition: color 0.3s;
+            z-index: 10; /* Memastikan ikon di atas input */
+        }
+
+        .password-toggle-icon:hover {
+            color: var(--accent-color);
+        }
+
+        /* Forgot password */
+        .forgot-password {
+            text-align: right;
+            margin-top: -10px;
+            margin-bottom: 20px;
+        }
+
+        .forgot-password a {
+            color: var(--accent-color);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .forgot-password a:hover {
+            text-decoration: underline;
+        }
+
+        /* Buttons */
+        .btn-auth {
+            width: 100%;
+            height: var(--input-height); /* Tinggi yang sama dengan input */
+            background: linear-gradient(135deg, var(--accent-color) 0%, #38d9a9 100%);
+            border: none;
+            border-radius: 8px; /* Sama dengan input */
+            color: white;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all var(--transition-speed);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-family: 'Inter', sans-serif;
+            margin-top: 5px;
+            box-sizing: border-box;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-auth:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px var(--accent-light);
+        }
+
+        .btn-auth:active {
+            transform: translateY(0);
+        }
+
+        /* Responsive design */
+        @media (max-width: 992px) {
+            .auth-container {
+                flex-direction: column;
+                gap: 40px;
+                padding: 30px;
+            }
+            
+            .description-panel,
+            .form-panel {
+                max-width: 100%;
+                width: 100%;
+                transform: none !important;
+                opacity: 1 !important;
+            }
+            
+            .welcome-text {
+                font-size: 36px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .auth-container {
+                padding: 20px;
+            }
+            
+            .auth-form-container {
+                padding: 30px 25px;
+            }
+            
+            .form-row {
+                flex-direction: column;
+                gap: 0;
+            }
+            
+            .welcome-text {
+                font-size: 32px;
+            }
+            
+            body {
+                overflow-y: auto;
+                height: auto;
+            }
+            
+            .auth-page {
+                overflow-y: auto;
+                height: auto;
+                padding: 20px 0;
+            }
+            
+            ::-webkit-scrollbar {
+                display: block;
+                width: 6px;
+            }
+            
+            ::-webkit-scrollbar-track {
+                background: var(--bg-primary);
+            }
+            
+            ::-webkit-scrollbar-thumb {
+                background: var(--accent-color);
+                border-radius: 3px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-page" id="authPage">
+        <div class="dots-bg" id="dotsContainer"></div>
+        
+        <div class="auth-container">
+            <div class="description-panel">
+                <div class="auth-logo">
+                    <div class="logo-icon"><i class="fas fa-rocket"></i></div>
+                    <div>
+                        <h1>POLARI</h1>
+                        <p>Twitter Sentiment Analysis System</p>
+                    </div>
+                </div>
+                
+                <h1 class="welcome-text" id="welcomeTitle">Create new <span>account</span></h1>
+                <p class="welcome-subtext" id="welcomeSubtext">
+                    Join our community and get access to powerful sentiment analysis tools. 
+                    Already have an account? <a id="switchToLogin">Log in</a> 
+                </p>
+                
+                <div class="features-list">
+                    <div class="feature-item">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Advanced sentiment analysis</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-bolt"></i>
+                        <span>Real-time Twitter data</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-sliders-h"></i>
+                        <span>Customizable dashboards</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-panel">
+                <div class="auth-form-container">
+                    <div class="form-selector">
+                        <div class="form-tab active" id="signupTab">Sign Up</div>
+                        <div class="form-tab" id="loginTab">Log In</div>
+                    </div>
+                    
+                    <div class="form-content active" id="signupForm">
+                        <div class="auth-header">
+                            <h2>START FOR FREE</h2>
+                            <p>Already A Member? <a id="switchToLogin2">Log in</a></p>
+                        </div>
+                        
+                        <form id="createAccountForm">
+                            <div class="form-row">
+                                <div class="input-group">
+                                    <label>First name</label>
+                                    <div class="input-wrapper">
+                                        <input type="text" id="firstName" placeholder="First name" required>
+                                    </div>
+                                </div>
+                                <div class="input-group">
+                                    <label>Last name</label>
+                                    <div class="input-wrapper">
+                                        <input type="text" id="lastName" placeholder="Last name" required>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="input-group">
+                                <label>Email</label>
+                                <div class="input-wrapper">
+                                    <input type="email" id="signupEmail" placeholder="Email" required>
+                                </div>
+                            </div>
+                            
+                            <div class="input-group">
+                                <label>Password</label>
+                                <div class="input-wrapper has-icon">
+                                    <input type="password" id="signupPassword" placeholder="Password" required>
+                                    <i class="fas fa-eye password-toggle-icon" id="toggleSignupPassword"></i>
+                                </div>
+                            </div>
+                            
+                            <button type="submit" class="btn-auth">Create account</button>
+                        </form>
+                    </div>
+                    
+                    <div class="form-content" id="loginForm">
+                        <div class="auth-header">
+                            <h2>WELCOME BACK</h2>
+                            <p>New to Polari? <a id="switchToSignup">Create account</a></p>
+                        </div>
+                        
+                        <form id="loginAccountForm">
+                            <div class="input-group">
+                                <label>Email</label>
+                                <div class="input-wrapper">
+                                    <input type="email" id="loginEmail" placeholder="Email" required>
+                                </div>
+                            </div>
+                            
+                            <div class="input-group">
+                                <label>Password</label>
+                                <div class="input-wrapper has-icon">
+                                    <input type="password" id="loginPassword" placeholder="Password" required>
+                                    <i class="fas fa-eye password-toggle-icon" id="toggleLoginPassword"></i>
+                                </div>
+                            </div>
+                            
+                            <div class="forgot-password">
+                                <a href="#" id="forgotPassword">Forgot password?</a>
+                            </div>
+                            
+                            <button type="submit" class="btn-auth">Sign In</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Create animated background dots
+        function createDots() {
+            const dotsContainer = document.getElementById('dotsContainer');
+            const colors = ['var(--accent-light)', 'rgba(56, 217, 169, 0.1)', 'rgba(255, 255, 255, 0.05)'];
+            
+            for (let i = 0; i < 15; i++) {
+                const dot = document.createElement('div');
+                dot.className = 'dot';
+                
+                const size = Math.random() * 80 + 20;
+                dot.style.width = `${size}px`;
+                dot.style.height = `${size}px`;
+                dot.style.left = `${Math.random() * 100}%`;
+                dot.style.top = `${Math.random() * 100}%`;
+                dot.style.background = colors[Math.floor(Math.random() * colors.length)];
+                
+                const delay = Math.random() * 5;
+                const duration = Math.random() * 10 + 15;
+                dot.style.animationDelay = `${delay}s`;
+                dot.style.animationDuration = `${duration}s`;
+                
+                dotsContainer.appendChild(dot);
+            }
+        }
+        
+        // Toggle password visibility
+        function setupPasswordToggle(toggleId, inputId) {
+            document.getElementById(toggleId).addEventListener('click', function() {
+                const passwordInput = document.getElementById(inputId);
+                const icon = this;
+                
+                if (passwordInput.type === 'password') {
+                    passwordInput.type = 'text';
+                    icon.classList.remove('fa-eye');
+                    icon.classList.add('fa-eye-slash');
+                } else {
+                    passwordInput.type = 'password';
+                    icon.classList.remove('fa-eye-slash');
+                    icon.classList.add('fa-eye');
+                }
+            });
+        }
+        
+        // Switch to Login mode
+        function switchToLogin() {
+            const authPage = document.getElementById('authPage');
+            const signupTab = document.getElementById('signupTab');
+            const loginTab = document.getElementById('loginTab');
+            const signupForm = document.getElementById('signupForm');
+            const loginForm = document.getElementById('loginForm');
+            const welcomeTitle = document.getElementById('welcomeTitle');
+            const welcomeSubtext = document.getElementById('welcomeSubtext');
+            
+            // Add login mode class for slide animation
+            authPage.classList.add('login-mode');
+            
+            // Switch tabs
+            signupTab.classList.remove('active');
+            loginTab.classList.add('active');
+            
+            // Switch forms
+            signupForm.classList.remove('active');
+            loginForm.classList.add('active');
+            
+            // Update welcome text
+            welcomeTitle.innerHTML = 'Welcome back, <span>member!</span>';
+            welcomeSubtext.innerHTML = 'We\'re glad to have you back. Access your personalized dashboard and continue your sentiment analysis journey. <br>New to Polari? <a id="switchToSignupText">Create account</a>';
+            
+            // Re-attach event listener
+            setTimeout(() => {
+                document.getElementById('switchToSignupText').addEventListener('click', switchToSignup);
+            }, 100);
+        }
+        
+        // Switch to Signup mode
+        function switchToSignup() {
+            const authPage = document.getElementById('authPage');
+            const signupTab = document.getElementById('signupTab');
+            const loginTab = document.getElementById('loginTab');
+            const signupForm = document.getElementById('signupForm');
+            const loginForm = document.getElementById('loginForm');
+            const welcomeTitle = document.getElementById('welcomeTitle');
+            const welcomeSubtext = document.getElementById('welcomeSubtext');
+            
+            // Remove login mode class for slide back animation
+            authPage.classList.remove('login-mode');
+            
+            // Switch tabs
+            loginTab.classList.remove('active');
+            signupTab.classList.add('active');
+            
+            // Switch forms
+            loginForm.classList.remove('active');
+            signupForm.classList.add('active');
+            
+            // Update welcome text
+            welcomeTitle.innerHTML = 'Create new <span>account</span>';
+            welcomeSubtext.innerHTML = 'Join our community and get access to powerful sentiment analysis tools. Already have an account? <a id="switchToLoginText">Log in</a>';
+            
+            // Re-attach event listener
+            setTimeout(() => {
+                document.getElementById('switchToLoginText').addEventListener('click', switchToLogin);
+            }, 100);
+        }
+        
+        // Form submissions
+        document.getElementById('createAccountForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const firstName = document.getElementById('firstName').value;
+            const lastName = document.getElementById('lastName').value;
+            const email = document.getElementById('signupEmail').value;
+            const password = document.getElementById('signupPassword').value;
+            
+            if (firstName && lastName && email && password) {
+                alert(`Account created successfully!\n\nWelcome ${firstName} ${lastName}!`);
+                // window.location.href = 'index.html';
+            } else {
+                alert('Please fill in all fields');
+            }
+        });
+        
+        document.getElementById('loginAccountForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            if (email && password) {
+                alert('Welcome back! Redirecting to dashboard...');
+                // window.location.href = 'dashboard.html';
+            } else {
+                alert('Please enter email and password');
+            }
+        });
+        
+        // Forgot password
+        document.getElementById('forgotPassword').addEventListener('click', function(e) {
+            e.preventDefault();
+            alert('Password reset link will be sent to your email.');
+        });
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            // Create animated background
+            createDots();
+            
+            // Setup password toggles
+            setupPasswordToggle('toggleSignupPassword', 'signupPassword');
+            setupPasswordToggle('toggleLoginPassword', 'loginPassword');
+            
+            // Auto-fill demo data - DIHAPUS AGAR FORM TIDAK TERISI OTOMATIS
+            // document.getElementById('firstName').value = 'Bintang';
+            // document.getElementById('lastName').value = 'Callista';
+            // document.getElementById('signupEmail').value = 'bigbintang@gmail.com';
+            // document.getElementById('loginEmail').value = 'bigbintang@gmail.com';
+            
+            // Attach event listeners for switching
+            document.querySelectorAll('#switchToLogin, #switchToLogin2').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    switchToLogin();
+                });
+            });
+            
+            document.getElementById('switchToSignup').addEventListener('click', function(e) {
+                e.preventDefault();
+                switchToSignup();
+            });
+            
+            // Tab switching
+            document.getElementById('signupTab').addEventListener('click', switchToSignup);
+            document.getElementById('loginTab').addEventListener('click', switchToLogin);
+        });
+    </script>
+</body>
+</html>

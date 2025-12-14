@@ -1,0 +1,3201 @@
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Polari - Dashboard</title>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+        <link rel="stylesheet" href="css/style.css"> 
+        <link rel="stylesheet" href="css/modals.css">
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+:root {
+    --bg-primary: #f8f9fa;
+    --bg-secondary: #ffffff;
+    --bg-tertiary: #f1f3f5;
+    --text-primary: #212529;
+    --text-secondary: #6c757d;
+    --text-tertiary: #868e96;
+    --border-color: #e9ecef;
+    --accent-color: #22b8cf;
+    --accent-hover: #1098ad;
+    --accent-light: rgba(34, 184, 207, 0.1);
+    --accent-gradient: linear-gradient(135deg, #22b8cf 0%, #38d9a9 100%);
+    --success-color: #51cf66;
+    --danger-color: #ff6b6b;
+    --warning-color: #ffd43b;
+    --shadow-md: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    --glass-bg: rgba(255, 255, 255, 0.25);
+    --glass-border: rgba(255, 255, 255, 0.18);
+    --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+    --glass-blur: blur(4px);
+    --transition-speed: 0.3s;
+}
+
+[data-theme="dark"] {
+    --bg-primary: #1a1d23;
+    --bg-secondary: #22262e;
+    --bg-tertiary: #2a2f38;
+    --text-primary: #f8f9fa;
+    --text-secondary: #adb5bd;
+    --text-tertiary: #868e96;
+    --border-color: #343a40;
+    --accent-color: #22b8cf;
+    --accent-hover: #1098ad;
+    --accent-light: rgba(34, 184, 207, 0.15);
+    --glass-bg: rgba(34, 38, 46, 0.4);
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+    --glass-blur: blur(8px);
+}
+
+* { 
+    margin: 0; 
+    padding: 0; 
+    box-sizing: border-box; 
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    overflow-x: hidden;
+    transition: background-color var(--transition-speed), color var(--transition-speed);
+    /* ENHANCED BACKGROUND WITH DOTS */
+    background-image: 
+        radial-gradient(circle at 10% 20%, rgba(34, 184, 207, 0.05) 0%, transparent 50%),
+        radial-gradient(circle at 90% 80%, rgba(56, 217, 169, 0.05) 0%, transparent 50%),
+        radial-gradient(circle at 25% 75%, rgba(255, 255, 255, 0.03) 2px, transparent 3px),
+        radial-gradient(circle at 75% 25%, rgba(255, 255, 255, 0.03) 2px, transparent 3px);
+    background-size: 100% 100%, 100% 100%, 50px 50px, 50px 50px;
+    background-attachment: fixed;
+}
+
+/* NAVBAR STYLES */
+.navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border-bottom: 1px solid var(--glass-border);
+    z-index: 1000;
+}
+
+.navbar-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 15px 30px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.logo-nav {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+    color: inherit;
+}
+
+.logo-icon {
+    width: 40px;
+    height: 40px;
+    background: var(--accent-gradient);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    color: white;
+}
+
+.logo-text h1 {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 2px;
+}
+
+.logo-text p {
+    font-size: 11px;
+    color: var(--text-secondary);
+}
+
+.nav-links {
+    display: flex;
+    list-style: none;
+    gap: 30px;
+    margin: 0;
+    padding: 0;
+}
+
+.nav-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    color: var(--text-secondary);
+    font-weight: 500;
+    font-size: 15px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    transition: all var(--transition-speed);
+}
+
+.nav-link:hover {
+    color: var(--text-primary);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.nav-link.active {
+    color: var(--accent-color);
+    background: var(--accent-light);
+}
+
+.nav-link i {
+    font-size: 16px;
+}
+
+.nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+/* PROFILE DROPDOWN */
+.profile-container {
+    position: relative;
+    z-index: 1001;
+}
+
+.user-profile-nav {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all var(--transition-speed);
+}
+
+.user-profile-nav:hover {
+    background: var(--accent-light);
+    border-color: var(--accent-color);
+}
+
+.user-avatar-nav {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--accent-gradient);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 16px;
+    color: white;
+}
+
+.user-info-nav {
+    display: flex;
+    flex-direction: column;
+}
+
+.user-name-nav {
+    font-weight: 600;
+    font-size: 14px;
+    max-width: 120px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.user-email-nav {
+    font-size: 11px;
+    color: var(--text-secondary);
+    max-width: 120px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.profile-dropdown {
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 0;
+    width: 220px;
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    box-shadow: var(--glass-shadow);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all var(--transition-speed);
+    z-index: 1002;
+}
+
+.profile-dropdown.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.dropdown-menu {
+    padding: 8px;
+}
+
+.dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 15px;
+    border-radius: 8px;
+    text-decoration: none;
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all var(--transition-speed);
+}
+
+.dropdown-item:hover {
+    background: var(--accent-light);
+}
+
+.dropdown-item i {
+    width: 20px;
+    color: var(--accent-color);
+}
+
+.dropdown-divider {
+    height: 1px;
+    background: var(--glass-border);
+    margin: 8px 15px;
+}
+
+.dropdown-item.logout {
+    color: var(--danger-color);
+}
+
+.dropdown-item.logout i {
+    color: var(--danger-color);
+}
+
+.dropdown-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 999;
+    display: none;
+    opacity: 0;
+    transition: opacity var(--transition-speed) ease;
+    background: rgba(0, 0, 0, 0.3);
+}
+
+.dropdown-overlay.show {
+    opacity: 1;
+}
+
+/* MODAL STYLES */
+.modal {
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    padding: 20px;
+}
+
+.modal.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.modal-content {
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    max-width: 600px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    transform: scale(0.9);
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.modal.active .modal-content {
+    transform: scale(1);
+    opacity: 1;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 25px 30px;
+    border-bottom: 1px solid var(--glass-border);
+}
+
+.modal-header h2 {
+    font-size: 22px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.modal-header h2 i {
+    color: var(--accent-color);
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 28px;
+    cursor: pointer;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s;
+}
+
+.modal-close:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-primary);
+}
+
+.modal-body {
+    padding: 30px;
+}
+
+.modal-footer {
+    padding: 20px 30px;
+    border-top: 1px solid var(--glass-border);
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+}
+
+/* ===== DASHBOARD CONTENT ===== */
+.container {
+    max-width: 1400px;
+    margin: 80px auto 0;
+    padding: 40px 30px;
+}
+
+.tabs-container {
+    max-width: 1400px;
+    margin: 80px auto 0;
+    padding: 0 30px;
+    display: none;
+}
+
+.tabs-header {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    overflow-x: auto;
+    padding: 12px;
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--glass-border);
+    border-radius: 14px;
+    box-shadow: var(--glass-shadow);
+}
+
+.tab-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    border-radius: 10px;
+    cursor: pointer;
+    user-select: none;
+    white-space: nowrap;
+    color: var(--text-secondary);
+    transition: all var(--transition-speed);
+    border: 1px solid transparent;
+    background: transparent;
+}
+
+.tab-item:hover {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+}
+
+.tab-item.active {
+    background: var(--bg-secondary);
+    border-color: var(--glass-border);
+    color: var(--accent-color);
+}
+
+.tab-badge {
+    background: var(--accent-color);
+    color: white;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 999px;
+}
+
+.has-tabs .tabs-container {
+    display: block;
+}
+
+.has-tabs .container {
+    margin-top: 18px;
+}
+
+.dashboard-page {
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 35px;
+    box-shadow: var(--glass-shadow);
+    /* ENHANCED WORKBENCH BACKGROUND */
+    position: relative;
+    overflow: hidden;
+}
+
+.dashboard-page::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: 
+        radial-gradient(circle at 15% 85%, rgba(34, 184, 207, 0.05) 0%, transparent 60%),
+        radial-gradient(circle at 85% 15%, rgba(56, 217, 169, 0.05) 0%, transparent 60%),
+        linear-gradient(45deg, transparent 49%, rgba(255,255,255,0.02) 50%, transparent 51%),
+        linear-gradient(-45deg, transparent 49%, rgba(255,255,255,0.02) 50%, transparent 51%);
+    background-size: 100% 100%, 100% 100%, 30px 30px, 30px 30px;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.dashboard-page > * {
+    position: relative;
+    z-index: 1;
+}
+
+.document-header {
+    background: var(--bg-secondary);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    padding: 25px;
+    margin-bottom: 25px;
+    position: relative;
+    z-index: 1;
+}
+
+.doc-title-edit {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.doc-title-input {
+    flex: 1;
+    padding: 10px 15px;
+    background: var(--bg-primary);
+    border: 1px solid var(--glass-border);
+    border-radius: 8px;
+    color: var(--text-primary);
+    font-size: 20px;
+    font-weight: 700;
+    font-family: 'Inter', sans-serif;
+}
+
+.doc-metadata {
+    display: flex;
+    gap: 25px;
+    color: var(--text-secondary);
+    font-size: 12px;
+}
+
+.doc-metadata span {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* ===== IMPROVED DOC ACTIONS ===== */
+.doc-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 18px;
+    position: relative;
+    z-index: 1;
+}
+
+.action-buttons-primary {
+    display: flex;
+    gap: 12px;
+    flex: 1;
+}
+
+.action-buttons-secondary {
+    display: flex;
+    gap: 12px;
+}
+
+.btn-action {
+    padding: 10px 18px;
+    background: var(--accent-gradient);
+    border: none;
+    border-radius: 8px;
+    color: white;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'Inter', sans-serif;
+    transition: all var(--transition-speed);
+}
+
+.btn-action:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px var(--accent-light);
+}
+
+.btn-secondary {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    color: var(--accent-color);
+}
+
+.btn-secondary:hover {
+    background: var(--accent-light);
+    border-color: var(--accent-color);
+}
+
+/* ===== EXPORT DROPDOWN ===== */
+.export-dropdown-container {
+    position: relative;
+    display: inline-block;
+    z-index: 100;
+}
+
+.export-dropdown {
+    position: absolute;
+    top: calc(100% + 5px);
+    left: 0;
+    min-width: 200px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    box-shadow: var(--shadow-md);
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all var(--transition-speed);
+}
+
+.export-dropdown.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.export-dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    color: var(--text-primary);
+    text-decoration: none;
+    cursor: pointer;
+    transition: all var(--transition-speed);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.export-dropdown-item:last-child {
+    border-bottom: none;
+}
+
+.export-dropdown-item:hover {
+    background: var(--accent-light);
+}
+
+.export-dropdown-item i {
+    width: 20px;
+    color: var(--accent-color);
+}
+
+.export-dropdown-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 999;
+    display: none;
+    opacity: 0;
+    transition: opacity var(--transition-speed) ease;
+}
+
+.export-dropdown-overlay.show {
+    opacity: 1;
+}
+
+/* ===== EXPORT MODE STYLES ===== */
+.export-mode .dashboard-page {
+    background: #ffffff !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    border: 1px solid #e9ecef !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1) !important;
+}
+
+.export-mode .dashboard-page::before {
+    display: none !important;
+}
+
+.export-mode .chart-box {
+    background: #f8f9fa !important;
+    border: 1px solid #e9ecef !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05) !important;
+}
+
+.export-mode .document-header {
+    background: #ffffff !important;
+    border: 1px solid #e9ecef !important;
+}
+
+.export-mode .btn-action,
+.export-mode .btn-detail,
+.export-mode .export-dropdown-container,
+.export-mode .nav-actions,
+.export-mode .navbar {
+    display: none !important;
+}
+
+.export-mode .legend-item:hover {
+    transform: none !important;
+    background: #f8f9fa !important;
+}
+
+.export-mode .donut-chart::before {
+    background: #ffffff !important;
+    border: 1.5px solid #e9ecef !important;
+}
+
+/* FIX COLORS FOR EXPORT */
+.export-mode .bar-fill.bar-positive {
+    background: linear-gradient(90deg, #51cf66 0%, #37b24d 100%) !important;
+}
+
+.export-mode .bar-fill.bar-negative {
+    background: linear-gradient(90deg, #ff6b6b 0%, #e03131 100%) !important;
+}
+
+.export-mode .legend-color.legend-positive {
+    background: #51cf66 !important;
+}
+
+.export-mode .legend-color.legend-negative {
+    background: #ff6b6b !important;
+}
+
+.export-mode .legend-color.legend-promosi {
+    background: #ffd43b !important;
+}
+
+.export-mode .donut-total,
+.export-mode .legend-label,
+.export-mode .chart-title,
+.export-mode .polaritas-section-title {
+    color: #212529 !important;
+}
+
+.export-mode .donut-label,
+.export-mode .legend-percentage,
+.export-mode .doc-metadata {
+    color: #6c757d !important;
+}
+
+/* ========== PERBAIKAN LAYOUT UTAMA ========== */
+.main-charts-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px; /* Diperbesar dari 20px */
+    margin-bottom: 35px; /* Diperbesar dari 25px */
+}
+
+.left-charts {
+    display: flex;
+    flex-direction: column;
+    gap: 20px; /* Diperbesar dari 15px */
+}
+
+.chart-box {
+    background: var(--bg-secondary);
+    border: 1px solid var(--glass-border);
+    border-radius: 15px; /* Diperbesar dari 12px */
+    padding: 25px; /* Diperbesar dari 20px */
+    box-shadow: var(--glass-shadow);
+    position: relative;
+    z-index: 1;
+}
+
+.chart-title {
+    font-size: 18px; /* Diperbesar dari 16px */
+    font-weight: 700;
+    color: var(--accent-color);
+    margin-bottom: 20px; /* Diperbesar dari 15px */
+    text-transform: uppercase;
+    letter-spacing: 1px; /* Lebih terlihat */
+    display: flex;
+    align-items: center;
+    gap: 10px; /* Diperbesar dari 8px */
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--glass-border);
+}
+
+/* ========== PERBAIKAN CHART DONUT YANG KECIL ========== */
+.donut-chart-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    padding: 30px 15px; /* Tambah padding atas-bawah */
+    min-height: 400px; /* Tinggi minimum lebih besar */
+}
+
+.donut-chart {
+    width: 280px; /* Diperbesar dari 240px */
+    height: 280px; /* Diperbesar dari 240px */
+    border-radius: 50%;
+    background: conic-gradient(
+        var(--success-color) 0% 14%,
+        var(--danger-color) 14% 89%,
+        var(--warning-color) 89% 100%
+    );
+    position: relative;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.1), inset 0 0 0 20px var(--glass-bg); /* Border lebih tebal */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 20px auto; /* Margin lebih besar */
+    transition: background 0.5s ease;
+}
+
+.donut-chart::before {
+    content: '';
+    position: absolute;
+    width: 160px; /* Diperbesar dari 140px */
+    height: 160px; /* Diperbesar dari 140px */
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-blur);
+    border-radius: 50%;
+    border: 2px solid var(--glass-border); /* Border lebih tebal */
+}
+
+.donut-text-container {
+    position: absolute;
+    text-align: center;
+    width: 160px; /* Diperbesar dari 140px */
+    height: 160px; /* Diperbesar dari 140px */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.donut-total {
+    font-size: 42px; /* Diperbesar dari 36px */
+    font-weight: 800;
+    color: var(--text-primary);
+    margin-bottom: 5px;
+}
+
+.donut-label {
+    font-size: 14px; /* Diperbesar dari 13px */
+    color: var(--text-secondary);
+}
+
+/* ========== PERBAIKAN 3 KOTAK LEGEND ========== */
+.donut-legend {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px; /* Gap lebih besar */
+    margin-top: 15px;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 12px; /* Gap lebih besar */
+    padding: 15px; /* Padding lebih besar */
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 10px; /* Border radius lebih besar */
+    cursor: pointer;
+    transition: all var(--transition-speed);
+}
+
+.legend-item:hover {
+    transform: translateX(5px);
+    background: var(--accent-light);
+    border-color: var(--accent-color);
+}
+
+.legend-color {
+    width: 18px;
+    height: 18px;
+    border-radius: 4px;
+}
+
+.legend-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px; /* Gap lebih jelas */
+}
+
+.legend-label {
+    font-size: 14px; /* Diperbesar dari 13px */
+    font-weight: 600;
+    color: var(--text-primary);
+    display: flex;
+    justify-content: space-between;
+    align-items: center; /* Vertikal align center */
+}
+
+.legend-count {
+    font-size: 18px; /* Diperbesar dari 16px */
+    font-weight: 700;
+    margin-left: 5px;
+}
+
+.legend-percentage {
+    font-size: 12px; /* Diperbesar dari 11px */
+    color: var(--text-secondary);
+    text-align: left;
+    width: 100%;
+}
+
+.legend-positive {
+    background: var(--success-color);
+}
+
+.legend-negative {
+    background: var(--danger-color);
+}
+
+.legend-promosi {
+    background: var(--warning-color);
+}
+
+/* ========== PERBAIKAN HORIZONTAL BARS KEYWORDS ========== */
+.horizontal-bars {
+    display: flex;
+    flex-direction: column;
+    gap: 15px; /* Diperbesar dari 12px */
+}
+
+.horizontal-item {
+    display: flex;
+    align-items: center;
+    gap: 15px; /* Diperbesar dari 12px */
+    margin-bottom: 10px;
+}
+
+.bar-label {
+    width: 120px; /* Lebar lebih besar */
+    font-size: 14px; /* Diperbesar dari 13px */
+    font-weight: 600;
+    color: var(--text-primary);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* Tambah kelas untuk styling angka keyword */
+.keyword-count {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--accent-color);
+    background: var(--accent-light);
+    padding: 2px 8px;
+    border-radius: 4px;
+    min-width: 30px;
+    text-align: center;
+}
+
+.horizontal-bar {
+    flex: 1;
+    height: 25px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.bar-fill {
+    height: 100%;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-right: 8px;
+    color: #fff;
+    font-weight: 600;
+    font-size: 12px;
+}
+
+.bar-positive {
+    background: linear-gradient(90deg, var(--success-color) 0%, #37b24d 100%);
+}
+
+.bar-negative {
+    background: linear-gradient(90deg, var(--danger-color) 0%, #e03131 100%);
+}
+
+.polaritas-section-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--accent-color);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.right-chart .chart-box {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+/* ========== PERBAIKAN POLARITAS KESELURUHAN + TOMBOL NEXT ========== */
+.overall-polarity {
+    margin-top: 25px;
+}
+
+.overall-polarity .chart-box {
+    padding: 25px; /* Padding lebih besar */
+}
+
+.polarity-bars {
+    display: flex;
+    flex-direction: column;
+    gap: 20px; /* Diperbesar dari 15px */
+}
+
+.polarity-item {
+    display: flex;
+    align-items: center;
+    gap: 20px; /* Gap lebih besar antara bar dan tombol */
+    margin-bottom: 15px;
+}
+
+.polarity-bar {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.polarity-bar .bar-label {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 5px;
+}
+
+.bar-track {
+    height: 35px; /* Tinggi lebih besar dari 32px */
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px; /* Border radius lebih besar */
+    overflow: hidden;
+    border: 1px solid var(--glass-border);
+}
+
+.bar-fill {
+    height: 100%;
+    border-radius: 8px; /* Border radius lebih besar */
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-right: 15px; /* Padding lebih besar */
+    color: #fff;
+    font-weight: 600;
+    font-size: 14px; /* Diperbesar dari 12px */
+    transition: width 0.8s ease-in-out;
+}
+
+/* ========== PERBAIKAN TOMBOL NEXT (BUTTON DETAIL) ========== */
+.btn-detail {
+    width: 40px; /* Lebar lebih besar dari 32px */
+    height: 40px; /* Tinggi lebih besar dari 32px */
+    background: var(--accent-gradient); /* Pakai gradient seperti tombol lain */
+    border: none; /* Hapus border default */
+    border-radius: 8px; /* Border radius lebih besar dari 6px */
+    color: white; /* Warna putih */
+    font-size: 18px; /* Diperbesar dari 16px */
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--transition-speed);
+    box-shadow: 0 4px 15px rgba(34, 184, 207, 0.3); /* Tambah shadow */
+}
+
+.btn-detail:hover {
+    transform: translateX(5px) translateY(-2px); /* Efek hover lebih dinamis */
+    box-shadow: 0 6px 20px rgba(34, 184, 207, 0.5);
+    background: var(--accent-hover);
+}
+
+/* TWEET LIST STYLES */
+.tweet-list {
+    padding: 20px;
+}
+
+.tweet-item {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 12px;
+}
+
+.tweet-user {
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: var(--accent-color);
+}
+
+.tweet-user i {
+    margin-right: 8px;
+}
+
+.tweet-text {
+    margin-bottom: 8px;
+    line-height: 1.5;
+}
+
+.tweet-meta {
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.tweet-meta i {
+    margin-right: 5px;
+}
+
+/* ===== SHARE MODAL STYLES ===== */
+.share-modal-content {
+    max-width: 500px;
+}
+
+.share-options {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+    margin: 20px 0;
+}
+
+.share-option {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding: 15px;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all var(--transition-speed);
+}
+
+.share-option:hover {
+    transform: translateY(-3px);
+    background: var(--accent-light);
+    border-color: var(--accent-color);
+}
+
+.share-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    color: white;
+}
+
+.whatsapp-icon {
+    background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
+}
+
+.gmail-icon {
+    background: linear-gradient(135deg, #EA4335 0%, #D14836 100%);
+}
+
+.line-icon {
+    background: linear-gradient(135deg, #00C300 0%, #00B300 100%);
+}
+
+.telegram-icon {
+    background: linear-gradient(135deg, #0088cc 0%, #006699 100%);
+}
+
+.facebook-icon {
+    background: linear-gradient(135deg, #1877F2 0%, #0D5FD6 100%);
+}
+
+.twitter-icon {
+    background: linear-gradient(135deg, #1DA1F2 0%, #0D8BD9 100%);
+}
+
+.share-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+    text-align: center;
+}
+
+.share-url-container {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid var(--glass-border);
+}
+
+.share-url-input {
+    width: 100%;
+    padding: 10px 15px;
+    background: var(--bg-primary);
+    border: 1px solid var(--glass-border);
+    border-radius: 8px;
+    color: var(--text-primary);
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    margin-bottom: 10px;
+}
+
+.copy-url-btn {
+    width: 100%;
+    padding: 12px;
+    background: var(--accent-gradient);
+    border: none;
+    border-radius: 8px;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-family: 'Inter', sans-serif;
+}
+
+.copy-success {
+    color: var(--success-color);
+    font-size: 12px;
+    text-align: center;
+    margin-top: 8px;
+    display: none;
+}
+
+/* TOAST STYLES */
+.toast {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    padding: 18px 20px;
+    box-shadow: var(--glass-shadow);
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    transform: translateX(120%);
+    opacity: 0;
+    animation: slideIn 0.5s forwards;
+    z-index: 1000;
+    max-width: 380px;
+}
+
+@keyframes slideIn {
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.toast.fade-out {
+    animation: slideOut 0.4s forwards;
+}
+
+@keyframes slideOut {
+    to {
+        transform: translateX(120%);
+        opacity: 0;
+    }
+}
+
+.toast-icon {
+    font-size: 22px;
+    margin-top: 2px;
+}
+
+.toast.success .toast-icon { color: var(--success-color); }
+.toast.warning .toast-icon { color: var(--warning-color); }
+.toast.error .toast-icon { color: var(--danger-color); }
+.toast.info .toast-icon { color: var(--accent-color); }
+
+.toast-content {
+    flex: 1;
+}
+
+.toast-title {
+    font-weight: 600;
+    font-size: 15px;
+    margin-bottom: 5px;
+}
+
+.toast-message {
+    color: var(--text-secondary);
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+.toast-close {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 16px;
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 4px;
+    transition: all var(--transition-speed);
+}
+
+.toast-close:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-primary);
+}
+
+.donut-tooltip {
+    position: absolute;
+    background: rgba(0,0,0,0.8);
+    color: #fff;
+    padding: 6px 10px;
+    border-radius: 5px;
+    font-size: 12px;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity .3s;
+    z-index: 1000;
+}
+
+.donut-tooltip.active {
+    opacity: 1;
+}
+
+/* ANIMASI PULSE RING YANG LENGKAP */
+@keyframes pulseRing {
+    0%, 100% {
+        transform: scale(1);
+        opacity: .3;
+    }
+    50% {
+        transform: scale(1.05);
+        opacity: .1;
+    }
+}
+
+.donut-ring {
+    position: absolute;
+    border-radius: 50%;
+    border: 1.5px solid;
+    opacity: .3;
+    animation: pulseRing 2s infinite;
+}
+
+.donut-ring-1 {
+    width: 300px;
+    height: 300px;
+    border-color: var(--accent-color);
+    animation-delay: .5s;
+}
+
+.donut-ring-2 {
+    width: 320px;
+    height: 320px;
+    border-color: var(--success-color);
+    animation-delay: 1s;
+}
+
+/* PAGE TRANSITION OVERLAY */
+.page-transition {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: var(--bg-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    opacity: 0;
+    transform: translateX(0);
+    transition: transform 0.45s ease, opacity 0.45s ease;
+}
+
+.page-transition.active {
+    opacity: 1;
+}
+
+.page-transition-text {
+    font-size: 16px;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.page-transition-text i {
+    color: var(--accent-color);
+}
+
+/* Untuk html2canvas dan PDF */
+@media print {
+    .dashboard-page {
+        background: white !important;
+        color: #212529 !important;
+        box-shadow: none !important;
+        border: 1px solid #ddd !important;
+    }
+    
+    .btn-action, .btn-detail, .nav-actions, .navbar,
+    .doc-actions, .export-dropdown-container {
+        display: none !important;
+    }
+    
+    .legend-item:hover {
+        transform: none !important;
+        background: #f8f9fa !important;
+    }
+    
+    .chart-box {
+        background: #f8f9fa !important;
+        border: 1px solid #ddd !important;
+        box-shadow: none !important;
+    }
+    
+    .donut-chart::before {
+        background: white !important;
+        border: 1.5px solid #ddd !important;
+    }
+}
+
+/* Untuk mendukung PDF generation */
+* {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+}
+
+/* Donut Chart Canvas untuk PDF */
+.donut-chart-canvas {
+    display: none;
+    width: 240px;
+    height: 240px;
+    border-radius: 50%;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+    margin: 15px auto;
+}
+
+/* Untuk PDF generation - donut chart khusus */
+.pdf-donut-container {
+    position: relative;
+    width: 240px;
+    height: 240px;
+    margin: 15px auto;
+}
+
+.pdf-donut-canvas {
+    width: 240px;
+    height: 240px;
+    border-radius: 50%;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+}
+
+.pdf-donut-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    width: 140px;
+    height: 140px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 50%;
+    border: 1.5px solid #e9ecef;
+}
+
+/* ========== PERBAIKAN RESPONSIVE ========== */
+@media (max-width: 1200px) {
+    .main-charts-container {
+        grid-template-columns: 1fr;
+    }
+    .share-options {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .navbar-container {
+        padding: 12px 20px;
+    }
+
+    .nav-links {
+        display: none;
+    }
+
+    .user-info-nav {
+        display: none;
+    }
+
+    .container {
+        margin-top: 70px;
+        padding: 20px;
+    }
+
+    .dashboard-page {
+        padding: 25px;
+    }
+
+    .doc-metadata {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .doc-actions {
+        flex-direction: column;
+    }
+
+    .action-buttons-primary,
+    .action-buttons-secondary {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .export-dropdown {
+        left: 0;
+        right: 0;
+        min-width: auto;
+    }
+
+    .donut-chart {
+        width: 220px;
+        height: 220px;
+    }
+    
+    .donut-chart::before {
+        width: 130px;
+        height: 130px;
+    }
+    
+    .donut-text-container {
+        width: 130px;
+        height: 130px;
+    }
+    
+    .donut-total {
+        font-size: 32px;
+    }
+    
+    .donut-legend {
+        grid-template-columns: 1fr;
+    }
+    
+    .polarity-item {
+        gap: 12px;
+    }
+    
+    .btn-detail {
+        width: 35px;
+        height: 35px;
+        font-size: 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    .share-options {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* PERBAIKAN UNTUK EKSPORT MODE */
+.export-mode .btn-detail {
+    background: #22b8cf !important;
+    border: 1px solid #1098ad !important;
+    color: white !important;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2) !important;
+}
+
+/* PERBAIKAN TAMPILAN ANGKA PADA HORIZONTAL BARS */
+.horizontal-bars .bar-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.keyword-text {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* SCROLLBAR */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bg-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--accent-color);
+    border-radius: 4px;
+}
+
+/* ===== TABS SYSTEM ===== */
+.tabs-container {
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--glass-border);
+    border-radius: 15px 15px 0 0;
+    padding: 0 25px;
+    margin: 80px 30px 0;
+    box-shadow: var(--glass-shadow);
+    position: relative;
+    z-index: 2;
+    display: none;
+}
+
+.tabs-header {
+    display: flex;
+    gap: 5px;
+    padding: 15px 0;
+    border-bottom: 1px solid var(--glass-border);
+    overflow-x: auto;
+}
+
+.tab-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 8px 8px 0 0;
+    color: var(--text-secondary);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all var(--transition-speed);
+    white-space: nowrap;
+    min-width: 120px;
+    position: relative;
+}
+
+.tab-item:hover {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+}
+
+.tab-item.active {
+    background: var(--bg-secondary);
+    border-color: var(--glass-border) var(--glass-border) transparent var(--glass-border);
+    border-bottom: 3px solid var(--accent-color);
+    color: var(--accent-color);
+    font-weight: 600;
+}
+
+.tab-icon {
+    font-size: 12px;
+    opacity: 0.7;
+}
+
+.tab-close {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    cursor: pointer;
+    margin-left: auto;
+    opacity: 0;
+    transition: all var(--transition-speed);
+}
+
+.tab-item:hover .tab-close {
+    opacity: 1;
+}
+
+.tab-close:hover {
+    background: var(--danger-color);
+    color: white;
+}
+
+.tab-content-wrapper {
+    position: relative;
+}
+
+.tab-content {
+    display: none;
+    animation: fadeIn 0.3s ease;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.add-tab-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 15px;
+    background: var(--accent-light);
+    border: 1px dashed var(--accent-color);
+    border-radius: 8px;
+    color: var(--accent-color);
+    font-size: 13px;
+    cursor: pointer;
+    margin-left: 10px;
+    transition: all var(--transition-speed);
+}
+
+.add-tab-btn:hover {
+    background: var(--accent-color);
+    color: white;
+    border-style: solid;
+}
+
+.tab-badge {
+    background: var(--accent-color);
+    color: white;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 6px;
+    border-radius: 10px;
+    margin-left: 5px;
+}
+
+.no-tabs .tabs-container {
+    display: none;
+}
+
+.has-tabs .tabs-container {
+    display: block;
+}
+
+.has-tabs .container {
+    margin-top: 50px;
+    padding: 0 30px 40px;
+}
+</style>
+        
+        <!-- PDF Libraries - Load di HEAD untuk memastikan tersedia -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <!-- Letakkan ini sebelum </body> -->
+    <script src="js/frontendAnalyzer.js"></script>
+    
+    </head>
+
+<body>
+    <!-- Include modals -->
+<div id="modals-container"></div>
+
+    <nav class="navbar">
+        <div class="navbar-container">
+            <a href="index.html" class="logo-nav">
+                <div class="logo-icon">
+                    <i class="fa-solid fa-rocket"></i>
+                </div>
+                <div class="logo-text">
+                    <h1>Polari</h1>
+                    <p>Sentiment Analysis</p>
+                </div>
+            </a>
+            
+            <ul class="nav-links">
+                <li><a href="index.html" class="nav-link">
+                    <i class="fas fa-backward"></i> back
+                </a></li>
+                <li><a href="dashboard.html" class="nav-link active">
+                    <i class="fas fa-chart-bar"></i> Dashboard
+                </a></li>
+            </ul>
+            
+            <div class="nav-actions">
+                <div class="profile-container">
+                    <div class="user-profile-nav" id="profileToggle">
+                        <div class="user-avatar-nav">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="user-info-nav">
+                            <div class="user-name-nav">John Doe</div>
+                            <div class="user-email-nav">john@example.com</div>
+                        </div>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    
+                    <div class="profile-dropdown" id="profileDropdown">
+                        <div class="dropdown-menu">
+                            <div class="dropdown-item" id="dropdownProfile">
+                                <i class="fas fa-user"></i> <span>Profile</span>
+                            </div>
+                            <div class="dropdown-item" id="dropdownAppearance">
+                                <i class="fas fa-palette"></i> <span>Appearance</span>
+                            </div>
+                            <div class="dropdown-item" id="dropdownSecurity">
+                                <i class="fas fa-shield-alt"></i> <span>Security</span>
+                            </div>
+                            <div class="dropdown-divider"></div>
+                            <div class="dropdown-item logout" id="dropdownLogout">
+                                <i class="fas fa-sign-out-alt"></i> <span>Logout</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="dropdown-overlay" id="dropdownOverlay"></div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- TABS SYSTEM -->
+    <div class="tabs-container" id="tabsContainer">
+        <div class="tabs-header" id="tabsHeader">
+            <!-- Tabs akan di-generate oleh JavaScript -->
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- TAB CONTENT WRAPPER (untuk multiple files) -->
+        <div class="tab-content-wrapper" id="tabContentWrapper">
+            <!-- DEFAULT TAB CONTENT (untuk single file/legacy mode) -->
+            <div class="tab-content active" id="tab-default" data-file-id="default">
+                <div class="dashboard-page">
+                    <div class="document-header">
+                        <div class="doc-title-edit">
+                            <input type="text" class="doc-title-input" id="docTitle" value="Analisis Sentimen Twitter">
+                        </div>
+                        <div class="doc-metadata">
+                            <span><i class="fas fa-calendar-alt"></i> <span id="docDate">Loading...</span></span>
+                            <span><i class="fas fa-search"></i> <span id="docKeyword">-</span></span>
+                            <span><i class="fas fa-chart-bar"></i> <span id="docTotal">0 tweets</span></span>
+                        </div>
+                        
+                        <div class="doc-actions">
+                            <div class="action-buttons-primary">
+                                <div class="export-dropdown-container">
+                                    <button class="btn-action" id="exportBtn">
+                                        <i class="fas fa-download"></i> Export
+                                        <i class="fas fa-chevron-down" style="font-size: 11px; margin-left: 4px;"></i>
+                                    </button>
+                                    <div class="export-dropdown" id="exportDropdown">
+                                        <div class="export-dropdown-item" onclick="downloadAsPDF()">
+                                            <i class="fas fa-file-pdf"></i> <span>Download as PDF</span>
+                                        </div>
+                                        <div class="export-dropdown-item" onclick="downloadAsPNG()">
+                                            <i class="fas fa-file-image"></i> <span>Download as PNG</span>
+                                        </div>
+                                        <div class="export-dropdown-item" onclick="downloadAsJPEG()">
+                                            <i class="fas fa-file-image"></i> <span>Download as JPEG</span>
+                                        </div>
+                                        <div class="export-dropdown-item" onclick="copyToClipboard()">
+                                            <i class="fas fa-copy"></i> <span>Copy to Clipboard</span>
+                                        </div>
+                                        <div class="export-dropdown-item" onclick="printDashboard()">
+                                            <i class="fas fa-print"></i> <span>Print Dashboard</span>
+                                        </div>
+                                    </div>
+                                    <div class="export-dropdown-overlay" id="exportDropdownOverlay"></div>
+                                </div>
+                                
+                                <button class="btn-action btn-secondary" id="shareBtn">
+                                    <i class="fas fa-share-alt"></i> Share
+                                </button>
+                            </div>
+                            
+                            <div class="action-buttons-secondary">
+                                <button class="btn-action btn-secondary" onclick="window.location.href='index.html'">
+                                    <i class="fas fa-home"></i> Home
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="main-charts-container">
+                        <div class="left-charts">
+                            <div class="polaritas-section-title">
+                                <i class="fas fa-chart-bar"></i> Polaritas Top 5 Keyword
+                            </div>
+                            
+                            <div class="chart-box">
+                                <h3 class="chart-title"><i class="fas fa-times-circle"></i> Negatif</h3>
+                                <div class="horizontal-bars" id="negativeKeywords">
+                                    <div class="horizontal-item"><div class="bar-label">Upload data pertama</div><div class="horizontal-bar"><div class="bar-fill bar-negative" style="width:0%;">0</div></div></div>
+                                </div>
+                            </div>
+                            
+                            <div class="chart-box">
+                                <h3 class="chart-title"><i class="fas fa-check-circle"></i> Positif</h3>
+                                <div class="horizontal-bars" id="positiveKeywords">
+                                    <div class="horizontal-item"><div class="bar-label">Upload data pertama</div><div class="horizontal-bar"><div class="bar-fill bar-positive" style="width:0%;">0</div></div></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="right-chart">
+                            <div class="chart-box">
+                                <h3 class="chart-title"><i class="fas fa-chart-pie"></i> Distribusi Sentimen</h3>
+                                <div class="donut-chart-container">
+                                    <div class="donut-chart" id="donutChart">
+                                        <div class="donut-text-container">
+                                            <div class="donut-total">0</div>
+                                            <div class="donut-label">Total Tweets</div>
+                                        </div>
+                                    </div>
+                                    <div class="donut-legend" id="donutLegend">
+                                        <div class="legend-item" data-type="positif">
+                                            <div class="legend-color legend-positive"></div>
+                                            <div class="legend-info">
+                                                <div class="legend-label"><span>Positif</span><span class="legend-count">0</span></div>
+                                                <div class="legend-percentage">0% dari total</div>
+                                            </div>
+                                        </div>
+                                        <div class="legend-item" data-type="negatif">
+                                            <div class="legend-color legend-negative"></div>
+                                            <div class="legend-info">
+                                                <div class="legend-label"><span>Negatif</span><span class="legend-count">0</span></div>
+                                                <div class="legend-percentage">0% dari total</div>
+                                            </div>
+                                        </div>
+                                        <div class="legend-item" data-type="promosi">
+                                            <div class="legend-color legend-promosi"></div>
+                                            <div class="legend-info">
+                                                <div class="legend-label"><span>Netral/Promosi</span><span class="legend-count">0</span></div>
+                                                <div class="legend-percentage">0% dari total</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="overall-polarity">
+                        <div class="chart-box">
+                            <h3 class="chart-title"><i class="fas fa-chart-bar"></i> Polaritas Keseluruhan</h3>
+                            <div class="polarity-bars">
+                                <div class="polarity-item">
+                                    <div class="polarity-bar">
+                                        <div class="bar-label"><span style="color:#51cf66"><i class="fas fa-check-circle"></i> Positif</span> <span id="positiveCount" style="color:#51cf66">0 (0%)</span></div>
+                                        <div class="bar-track"><div class="bar-fill bar-positive" id="positiveBar" style="width:0%;"></div></div>
+                                    </div>
+                                    <button class="btn-detail" onclick="showDetailModal('positive')"><i class="fas fa-arrow-right"></i></button>
+                                </div>
+                                <div class="polarity-item">
+                                    <div class="polarity-bar">
+                                        <div class="bar-label"><span style="color:#ff6b6b"><i class="fas fa-times-circle"></i> Negatif</span> <span id="negativeCount" style="color:#ff6b6b">0 (0%)</span></div>
+                                        <div class="bar-track"><div class="bar-fill bar-negative" id="negativeBar" style="width:0%;"></div></div>
+                                    </div>
+                                    <button class="btn-detail" onclick="showDetailModal('negative')"><i class="fas fa-arrow-right"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- END DEFAULT TAB CONTENT -->
+            
+            <!-- Additional tab contents will be generated here by JavaScript -->
+        </div>
+        <!-- END TAB CONTENT WRAPPER -->
+    </div>
+
+    <!-- MODALS (tetap sama) -->
+    <div id="detailModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modalTitle">Detail Tweet</h2>
+                <button class="modal-close" onclick="closeDetailModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="tweet-list" id="tweetList">
+                    <p style="text-align: center; padding: 40px; color: #6c757d;">
+                        <i class="fas fa-file-upload" style="font-size: 48px; margin-bottom: 20px; display: block;"></i>
+                        Belum ada data tweet. Silakan upload file CSV terlebih dahulu.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="shareModal" class="modal">
+        <div class="modal-content share-modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Share Dashboard</h2>
+                <button class="modal-close" onclick="closeShareModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="share-options">
+                    <div class="share-option" onclick="shareViaWhatsApp()">
+                        <div class="share-icon whatsapp-icon"><i class="fab fa-whatsapp"></i></div>
+                        <div class="share-label">WhatsApp</div>
+                    </div>
+                    <div class="share-option" onclick="shareViaGmail()">
+                        <div class="share-icon gmail-icon"><i class="fas fa-envelope"></i></div>
+                        <div class="share-label">Gmail</div>
+                    </div>
+                    <div class="share-option" onclick="shareViaLine()">
+                        <div class="share-icon line-icon"><i class="fab fa-line"></i></div>
+                        <div class="share-label">Line</div>
+                    </div>
+                    <div class="share-option" onclick="shareViaTelegram()">
+                        <div class="share-icon telegram-icon"><i class="fab fa-telegram"></i></div>
+                        <div class="share-label">Telegram</div>
+                    </div>
+                    <div class="share-option" onclick="shareViaFacebook()">
+                        <div class="share-icon facebook-icon"><i class="fab fa-facebook-f"></i></div>
+                        <div class="share-label">Facebook</div>
+                    </div>
+                    <div class="share-option" onclick="shareViaTwitter()">
+                        <div class="share-icon twitter-icon"><i class="fab fa-twitter"></i></div>
+                        <div class="share-label">Twitter</div>
+                    </div>
+                </div>
+                <div class="share-url-container">
+                    <input type="text" class="share-url-input" id="shareUrl" value="https://polari.app/dashboard" readonly>
+                    <button class="copy-url-btn" onclick="copyShareUrl()">
+                        <i class="fas fa-copy"></i> Copy URL
+                    </button>
+                    <div class="copy-success" id="copySuccess">URL copied to clipboard!</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="donut-tooltip" id="donutTooltip"></div>
+
+    <div class="page-transition" id="pageTransition">
+        <div class="page-transition-text">
+            <i class="fas fa-spinner fa-spin"></i>
+            <span>Loading...</span>
+        </div>
+    </div>
+    
+    <!-- Scripts -->
+    <script src="js/modals.js"></script>
+    <script src="js/analyzer.js"></script>
+    <script src="js/database.js"></script>
+
+<script>
+    // ===== VARIABLES =====
+    let dashboardData = null;
+    let rawDataForKeywords = [];
+    window.donutChartData = null;
+
+    const loadAllUploadedFilesFromDatabase = window.loadAllUploadedFiles;
+    const closeTabFromDatabase = window.closeTab;
+
+    // ===== TABS SYSTEM VARIABLES =====
+    let allUploadedFiles = {};
+    let currentTabId = 'file1';
+    let tabCounter = 1;
+    let uploadedFilesData = [];
+
+    // ===== TOAST FUNCTION =====
+    function showToast(title, message, type = 'info', duration = 3000) {
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        toast.innerHTML = `
+            <div class="toast-icon">
+                <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : type === 'warning' ? 'exclamation-triangle' : type === 'info' ? 'info-circle' : ''}"></i>
+            </div>
+            <div class="toast-content">
+                <div class="toast-title">${title}</div>
+                <div class="toast-message">${message}</div>
+            </div>
+            <button class="toast-close" onclick="this.parentElement.classList.add('fade-out'); setTimeout(() => this.parentElement.remove(), 400)">
+                &times;
+            </button>
+        `;
+        
+        document.body.appendChild(toast);
+        
+        setTimeout(() => {
+            toast.classList.add('fade-out');
+            setTimeout(() => {
+                if (toast.parentElement) toast.remove();
+            }, 400);
+        }, duration);
+        
+        return toast;
+    }
+
+    // ===== TABS SYSTEM FUNCTIONS =====
+
+    function normalizeRowForDashboard(item) {
+        if (!item || typeof item !== 'object') return null;
+
+        let klasifikasiRaw = item.klasifikasi ?? item.klarifikasi ?? item.sentiment ?? item.category ?? item.label ?? item.classification ?? item.sentimen ?? item.polarity ?? item.polaritas ?? '';
+        if (!klasifikasiRaw) {
+            const keys = Object.keys(item);
+            const probableKey = keys.find(k => /klas|klar|sentim|senten|polar/i.test(k));
+            if (probableKey) klasifikasiRaw = item[probableKey];
+        }
+        const keywordRaw = item.keyword ?? item.key_word ?? item.term ?? item.kata_kunci ?? item.katakunci ?? '';
+        const textRaw = item.fullText ?? item.full_text ?? item.text ?? item.tweet ?? item.content ?? item.komentar ?? '';
+        const usernameRaw = item.username ?? item.user ?? item.screen_name ?? item.author ?? item.penulis ?? '@user';
+        const createdAtRaw = item.createdAt ?? item.created_at ?? item.date ?? item.timestamp ?? item.waktu ?? '';
+
+        const normalized = {
+            ...item,
+            keyword: (keywordRaw ?? '').toString(),
+            fullText: (textRaw ?? '').toString(),
+            username: (usernameRaw ?? '').toString(),
+            createdAt: (createdAtRaw ?? '').toString(),
+            klasifikasi: normalizeClassification(klasifikasiRaw)
+        };
+
+        return normalized;
+    }
+
+    function normalizeRawDataArray(rows) {
+        if (!Array.isArray(rows)) return [];
+        return rows
+            .map(normalizeRowForDashboard)
+            .filter(Boolean);
+    }
+
+    // Load semua uploaded files
+    async function loadAllUploadedFiles() {
+        console.log('📂 Loading all uploaded files...');
+        
+        if (typeof loadAllUploadedFilesFromDatabase === 'function') {
+            try {
+                const count = await loadAllUploadedFilesFromDatabase();
+                if (typeof count === 'number' && count > 0) {
+                    console.log(`📊 Total files loaded (IndexedDB): ${count}`);
+                    return count;
+                }
+            } catch (e) {
+                console.warn('⚠️ IndexedDB loader failed, falling back to localStorage:', e);
+            }
+        }
+        
+        allUploadedFiles = {};
+        tabCounter = 1;
+        uploadedFilesData = [];
+        
+        // Cek data dari localStorage
+        try {
+            const stored = localStorage.getItem('uploadedFiles');
+            if (stored) {
+                const parsed = JSON.parse(stored);
+
+                // Format baru: array
+                if (Array.isArray(parsed) && parsed.length > 0) {
+                    console.log('📦 Found uploadedFiles array:', parsed.length, 'files');
+                    uploadedFilesData = parsed;
+
+                    parsed.forEach((file, index) => {
+                        const fileId = `file${tabCounter++}`;
+                        allUploadedFiles[fileId] = {
+                            id: fileId,
+                            name: file.name || `File ${index + 1}`,
+                            data: file,
+                            rawData: Array.isArray(file.rawData) ? file.rawData : (Array.isArray(file.data) ? file.data : []),
+                            timestamp: file.timestamp || new Date().toISOString()
+                        };
+                    });
+                }
+
+                // Format index.html: object map
+                if (!Array.isArray(parsed) && parsed && typeof parsed === 'object') {
+                    const keys = Object.keys(parsed);
+                    if (keys.length > 0) {
+                        console.log('📦 Found uploadedFiles object:', keys.length, 'files');
+                        uploadedFilesData = keys.map(k => parsed[k]);
+
+                        keys.forEach((key, index) => {
+                            const file = parsed[key];
+                            const fileId = `file${tabCounter++}`;
+                            const raw = Array.isArray(file?.rawData)
+                                ? file.rawData
+                                : (Array.isArray(file?.data) ? file.data : []);
+
+                            allUploadedFiles[fileId] = {
+                                id: fileId,
+                                name: file?.name || `File ${index + 1}`,
+                                data: file,
+                                rawData: raw,
+                                timestamp: file?.timestamp || new Date().toISOString(),
+                                storageKey: key
+                            };
+                        });
+                    }
+                }
+            }
+        } catch (e) {
+            console.warn('⚠️ Error loading uploadedFiles from localStorage:', e);
+        }
+        
+        // Cari data lama
+        if (Object.keys(allUploadedFiles).length === 0) {
+            const storageKeys = Object.keys(localStorage);
+            
+            storageKeys.forEach(key => {
+                if (key.startsWith('csvData_') || key.startsWith('analysis_') || key === 'csvRawData' || key === 'polaritasAnalysis') {
+                    try {
+                        const data = JSON.parse(localStorage.getItem(key));
+                        
+                        if (data && (Array.isArray(data) || data.rawData || data.formatted || data.data)) {
+                            const fileId = `file${tabCounter++}`;
+                            
+                            let fileName = 'Uploaded File';
+                            if (key.startsWith('csvData_')) {
+                                fileName = key.replace('csvData_', '') + '.csv';
+                            } else if (key === 'csvRawData') {
+                                fileName = 'Data Analisis.csv';
+                            } else if (key === 'polaritasAnalysis') {
+                                fileName = 'Analisis Sentimen';
+                            }
+                            
+                            let rawData = [];
+                            if (Array.isArray(data)) {
+                                rawData = data;
+                            } else if (data.rawData) {
+                                rawData = data.rawData;
+                            } else if (data.data && Array.isArray(data.data)) {
+                                rawData = data.data;
+                            }
+                            
+                            allUploadedFiles[fileId] = {
+                                id: fileId,
+                                name: fileName,
+                                storageKey: key,
+                                data: data,
+                                rawData: rawData,
+                                timestamp: new Date().toISOString()
+                            };
+                        }
+                    } catch (e) {
+                        console.warn(`⚠️ Error loading ${key}:`, e);
+                    }
+                }
+            });
+        }
+        
+        console.log(`📊 Total files loaded: ${Object.keys(allUploadedFiles).length}`);
+        return Object.keys(allUploadedFiles).length;
+    }
+
+    // Initialize tabs system
+    async function initializeTabsSystem() {
+        console.log('🔄 Initializing tabs system...');
+        
+        const fileCount = await loadAllUploadedFiles();
+        
+        if (fileCount <= 1) {
+            document.body.classList.add('no-tabs');
+            document.body.classList.remove('has-tabs');
+            
+            if (fileCount === 1) {
+                const firstFileKey = Object.keys(allUploadedFiles)[0];
+                currentTabId = firstFileKey;
+                const file = allUploadedFiles[firstFileKey];
+                dashboardData = file.data;
+                rawDataForKeywords = normalizeRawDataArray(file.rawData);
+                updateDashboardWithData();
+            }
+            
+            return;
+        }
+        
+        // Multiple files mode
+        document.body.classList.add('has-tabs');
+        document.body.classList.remove('no-tabs');
+        
+        generateTabsUI();
+        
+        const firstFileId = Object.keys(allUploadedFiles)[0];
+        activateTab(firstFileId);
+    }
+
+    function generateTabsUI() {
+        const tabsHeader = document.getElementById('tabsHeader');
+        if (!tabsHeader) return;
+
+        tabsHeader.innerHTML = '';
+
+        Object.keys(allUploadedFiles).forEach((fileId, index) => {
+            const file = allUploadedFiles[fileId];
+
+            const tabElement = document.createElement('div');
+            tabElement.className = `tab-item ${index === 0 ? 'active' : ''}`;
+            tabElement.dataset.fileId = fileId;
+            tabElement.innerHTML = `
+                <i class="fas fa-file-csv tab-icon"></i>
+                <span class="tab-title">${file.name}</span>
+                <div class="tab-badge">${file.rawData.length || 0}</div>
+                <button class="tab-close" onclick="closeTab('${fileId}')">&times;</button>
+            `;
+
+            tabElement.addEventListener('click', (e) => {
+                if (!e.target.classList.contains('tab-close')) {
+                    activateTab(fileId);
+                }
+            });
+
+            tabsHeader.appendChild(tabElement);
+        });
+
+        const addTabBtn = document.createElement('div');
+        addTabBtn.className = 'add-tab-btn';
+        addTabBtn.innerHTML = '<i class="fas fa-plus"></i> Add File';
+        addTabBtn.addEventListener('click', () => {
+            showToast('Info', 'Redirecting to upload page...', 'info');
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 1000);
+        });
+
+        tabsHeader.appendChild(addTabBtn);
+    }
+
+    // Aktifkan tab
+    function activateTab(fileId) {
+        if (!allUploadedFiles[fileId]) return;
+
+        document.querySelectorAll('.tab-item').forEach(tab => {
+            tab.classList.toggle('active', tab.dataset.fileId === fileId);
+        });
+
+        currentTabId = fileId;
+        const file = allUploadedFiles[fileId];
+
+        dashboardData = file.data;
+        rawDataForKeywords = normalizeRawDataArray(file.rawData);
+
+        updateDashboardWithData();
+
+        console.log(`✅ Activated tab: ${fileId} - ${file.name}`);
+    }
+
+    // Close tab
+    async function closeTab(fileId) {
+        if (Object.keys(allUploadedFiles).length <= 1) {
+            showToast('Warning', 'Minimal harus ada 1 tab terbuka', 'warning');
+            return;
+        }
+
+        const file = allUploadedFiles[fileId];
+        if (!file) return;
+
+        if (!confirm(`Tutup tab "${file.name}"?`)) return;
+
+        // Prefer delete from IndexedDB via database.js (if available)
+        if (typeof closeTabFromDatabase === 'function') {
+            try {
+                await closeTabFromDatabase(fileId);
+                return;
+            } catch (e) {
+                console.warn('⚠️ closeTab IndexedDB failed, falling back to local removal:', e);
+            }
+        }
+
+        // Fallback: remove from local in-memory
+        delete allUploadedFiles[fileId];
+
+        // Fallback: persist removal to localStorage uploadedFiles
+        try {
+            const stored = localStorage.getItem('uploadedFiles');
+            if (stored) {
+                const parsed = JSON.parse(stored);
+
+                // Object map format (index.html)
+                if (parsed && typeof parsed === 'object' && !Array.isArray(parsed) && file.storageKey && parsed[file.storageKey]) {
+                    delete parsed[file.storageKey];
+                    localStorage.setItem('uploadedFiles', JSON.stringify(parsed));
+                }
+
+                // Array format
+                if (Array.isArray(parsed)) {
+                    const idx = parsed.findIndex(f => (f?.name || '') === file.name);
+                    if (idx >= 0) {
+                        parsed.splice(idx, 1);
+                        localStorage.setItem('uploadedFiles', JSON.stringify(parsed));
+                    }
+                }
+            }
+        } catch (e) {
+            console.warn('⚠️ Failed updating localStorage on closeTab:', e);
+        }
+
+        const remainingTabs = Object.keys(allUploadedFiles);
+        if (remainingTabs.length > 0) {
+            activateTab(remainingTabs[0]);
+        }
+
+        generateTabsUI();
+        showToast('Info', 'Tab ditutup', 'info');
+    }
+
+    // ===== LOAD ANALYSIS DATA =====
+    async function loadAnalysisData() {
+        console.log('📥 Loading analysis data...');
+
+        // Coba load dari sistem tabs dulu
+        const fileCount = await loadAllUploadedFiles();
+
+        if (fileCount > 0) {
+            return true;
+        }
+
+        // Fallback ke data tunggal
+        try {
+            const rawData = localStorage.getItem('csvRawData');
+            if (rawData) {
+                rawDataForKeywords = normalizeRawDataArray(JSON.parse(rawData));
+                console.log(`✅ Loaded ${rawDataForKeywords.length} raw data items`);
+
+                dashboardData = {
+                    fileName: "Uploaded File",
+                    timestamp: new Date().toISOString(),
+                    rawData: rawDataForKeywords,
+                    formatted: null
+                };
+
+                return true;
+            }
+
+            const analysisData = localStorage.getItem('polaritasAnalysis');
+            if (analysisData) {
+                const parsed = JSON.parse(analysisData);
+                if (parsed.data) {
+                    dashboardData = parsed;
+                    if (parsed.rawData && Array.isArray(parsed.rawData)) {
+                        rawDataForKeywords = parsed.rawData;
+                    }
+                    console.log('📊 Dashboard data loaded from polaritasAnalysis');
+                    return true;
+                }
+            }
+        } catch (e) {
+            console.warn('⚠️ Error loading data:', e);
+        }
+        
+        // Jika tidak ada data
+        showNoDataMessage();
+        return false;
+    }
+
+    function showNoDataMessage() {
+        const dashboardPage = document.querySelector('.dashboard-page');
+        if (dashboardPage) {
+            const existingMessage = dashboardPage.querySelector('.no-data-message');
+            if (!existingMessage) {
+                const messageHTML = `
+                    <div class="no-data-message">
+                        <i class="fas fa-file-upload"></i>
+                        <h3>Belum Ada Data Analisis</h3>
+                        <p>Dashboard ini memerlukan data dari file CSV yang telah dianalisis.</p>
+                        <button onclick="window.location.href='index.html'">
+                            <i class="fas fa-upload"></i> Upload CSV File
+                        </button>
+                        <p>Klik tombol di atas untuk mengupload file CSV hasil scraping Twitter</p>
+                    </div>
+                `;
+                dashboardPage.insertAdjacentHTML('beforeend', messageHTML);
+            }
+        }
+        
+        showToast('Informasi', 'Belum ada data analisis. Silakan upload file CSV terlebih dahulu.', 'info');
+    }
+
+    // ===== EXTRACT CLASSIFICATION COUNTS (DIPERBAIKI) =====
+    function extractClassificationCounts() {
+        if (rawDataForKeywords.length === 0 && !dashboardData) {
+            return { positifCount: 0, negatifCount: 0, promosiCount: 0 };
+        }
+        
+        let positifCount = 0;
+        let negatifCount = 0;
+        let promosiCount = 0;
+        
+        if (rawDataForKeywords.length > 0) {
+            rawDataForKeywords.forEach((item) => {
+                if (!item || typeof item !== 'object') return;
+
+                const raw = item.klasifikasi || item.sentiment || item.category || item.label || item.classification || '';
+                const klasifikasi = normalizeClassification(raw);
+
+                if (klasifikasi === 'positif') positifCount++;
+                else if (klasifikasi === 'negatif') negatifCount++;
+                else promosiCount++;
+            });
+        } else if (dashboardData && dashboardData.data) {
+            const data = dashboardData.data;
+            
+            if (data.classifications) {
+                positifCount = data.classifications.Positif?.count || data.classifications.Positif || 
+                               data.classifications.poster?.count || data.classifications.poster || 0;
+                negatifCount = data.classifications.Negatif?.count || data.classifications.Negatif || 
+                               data.classifications.digital?.count || data.classifications.digital || 0;
+                promosiCount = data.classifications.Promosi?.count || data.classifications.Promosi || 
+                               data.classifications.metaproduction?.count || data.classifications.metaproduction || 0;
+            }
+        }
+        
+        return { positifCount, negatifCount, promosiCount };
+    }
+
+    function normalizeClassification(value) {
+        const v = (value ?? '').toString().toLowerCase().trim();
+        if (!v) return 'promosi';
+
+        // Numeric encodings (supports 1, -1, 0, 1.0, -2, etc)
+        const n = Number(v);
+        if (!Number.isNaN(n)) {
+            if (n > 0) return 'positif';
+            if (n < 0) return 'negatif';
+            return 'promosi';
+        }
+
+        // Abbreviations
+        if (v === 'pos' || v === 'positif ') return 'positif';
+        if (v === 'neg' || v === 'negatif ') return 'negatif';
+
+        // Positif
+        if (v.includes('positif') || v.includes('positive') || v === '+' || v.includes('poster')) return 'positif';
+        // Negatif
+        if (v.includes('negatif') || v.includes('negative') || v === '-' || v.includes('digital')) return 'negatif';
+        // Netral/Promosi
+        if (
+            v.includes('netral') || v.includes('neutral') || v.includes('promosi') ||
+            v.includes('metaproduction') || v.includes('meta production') || v.includes('meta_production')
+        ) return 'promosi';
+
+        // Fallback
+        return 'promosi';
+    }
+
+    // ===== UPDATE DASHBOARD =====
+    function updateDashboardWithData() {
+        if (!dashboardData) {
+            console.log('📭 No data to display');
+            return;
+        }
+
+        console.log('🔄 Updating dashboard with data...');
+        
+        updateDonutChart();
+        updateHorizontalBars();
+        updatePolarityBars();
+        updateDonutLegend();
+        
+        console.log('✅ Dashboard updated successfully');
+    }
+
+    // ===== UPDATE HORIZONTAL BARS =====
+    function updateHorizontalBars() {
+        if (rawDataForKeywords.length === 0) {
+            document.getElementById('negativeKeywords').innerHTML = `
+                <div class="horizontal-item">
+                    <div class="bar-label">Tidak ada data negatif</div>
+                    <div class="horizontal-bar">
+                        <div class="bar-fill bar-negative" style="width:0%;">0</div>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('positiveKeywords').innerHTML = `
+                <div class="horizontal-item">
+                    <div class="bar-label">Tidak ada data positif</div>
+                    <div class="horizontal-bar">
+                        <div class="bar-fill bar-positive" style="width:0%;">0</div>
+                    </div>
+                </div>
+            `;
+            return;
+        }
+        
+        const negKeywords = {};
+        const posKeywords = {};
+        
+        rawDataForKeywords.forEach(item => {
+            if (!item || typeof item !== 'object') return;
+            
+            const raw = item.klasifikasi || item.sentiment || item.category || item.label || item.classification || '';
+            const klasifikasi = normalizeClassification(raw);
+            const keyword = (item.keyword || item.key_word || item.term || '').trim();
+            
+            if (!keyword || keyword === '') return;
+            
+            const keywordClean = keyword.toLowerCase().trim();
+            
+            // LOGIKA KLASIFIKASI YANG SAMA
+            if (klasifikasi === 'positif') {
+                posKeywords[keywordClean] = (posKeywords[keywordClean] || 0) + 1;
+            } else if (klasifikasi === 'negatif') {
+                negKeywords[keywordClean] = (negKeywords[keywordClean] || 0) + 1;
+            }
+        });
+        
+        const topNeg = Object.entries(negKeywords)
+            .map(([k, v]) => ({ keyword: k, count: v }))
+            .sort((a, b) => b.count - a.count)
+            .slice(0, 5);
+        
+        const topPos = Object.entries(posKeywords)
+            .map(([k, v]) => ({ keyword: k, count: v }))
+            .sort((a, b) => b.count - a.count)
+            .slice(0, 5);
+        
+        updateKeywordChartHTML('negativeKeywords', topNeg, 'bar-negative');
+        updateKeywordChartHTML('positiveKeywords', topPos, 'bar-positive');
+    }
+
+    function updateKeywordChartHTML(containerId, items, barClass) {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+        
+        if (items.length === 0) {
+            container.innerHTML = `
+                <div class="horizontal-item">
+                    <div class="bar-label">Tidak ada data</div>
+                    <div class="horizontal-bar">
+                        <div class="bar-fill ${barClass}" style="width:0%;">0</div>
+                    </div>
+                </div>
+            `;
+            return;
+        }
+        
+        const maxCount = Math.max(...items.map(i => i.count));
+        
+        container.innerHTML = items.map(item => {
+            const width = maxCount > 0 ? (item.count / maxCount * 100) : 0;
+            const displayName = item.keyword.length > 30 
+                ? item.keyword.charAt(0).toUpperCase() + item.keyword.slice(1, 30) + '...'
+                : item.keyword.charAt(0).toUpperCase() + item.keyword.slice(1);
+            
+            return `
+                <div class="horizontal-item">
+                    <div class="bar-label" title="${item.keyword} (${item.count}x)">
+                        <span class="keyword-text">${displayName}</span>
+                        <span class="keyword-count">${item.count}</span>
+                    </div>
+                    <div class="horizontal-bar">
+                        <div class="bar-fill ${barClass}" style="width:${width}%;">${item.count}</div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    // ===== UPDATE POLARITY BARS =====
+    function updatePolarityBars() {
+        const { positifCount, negatifCount } = extractClassificationCounts();
+        const total = positifCount + negatifCount;
+        
+        const positifPercent = total > 0 ? Math.round((positifCount / total) * 100) : 0;
+        const negatifPercent = total > 0 ? Math.round((negatifCount / total) * 100) : 0;
+        
+        const positiveBar = document.getElementById('positiveBar');
+        const positiveCount = document.getElementById('positiveCount');
+        const negativeBar = document.getElementById('negativeBar');
+        const negativeCount = document.getElementById('negativeCount');
+        
+        if (positiveBar) positiveBar.style.width = `${positifPercent}%`;
+        if (positiveCount) positiveCount.textContent = `${positifCount} (${positifPercent}%)`;
+        if (negativeBar) negativeBar.style.width = `${negatifPercent}%`;
+        if (negativeCount) negativeCount.textContent = `${negatifCount} (${negatifPercent}%)`;
+    }
+
+    // ===== UPDATE DONUT LEGEND =====
+    function updateDonutLegend() {
+        const { positifCount, negatifCount, promosiCount } = extractClassificationCounts();
+        const total = positifCount + negatifCount + promosiCount;
+        
+        const positifPercent = total > 0 ? Math.round((positifCount / total) * 100) : 0;
+        const negatifPercent = total > 0 ? Math.round((negatifCount / total) * 100) : 0;
+        const promosiPercent = total > 0 ? Math.round((promosiCount / total) * 100) : 0;
+        
+        const legendItems = document.querySelectorAll('.legend-item');
+        
+        if (legendItems[0]) {
+            const countEl = legendItems[0].querySelector('.legend-count');
+            const percEl = legendItems[0].querySelector('.legend-percentage');
+            if (countEl) countEl.textContent = positifCount;
+            if (percEl) percEl.textContent = `${positifPercent}% dari total`;
+        }
+        
+        if (legendItems[1]) {
+            const countEl = legendItems[1].querySelector('.legend-count');
+            const percEl = legendItems[1].querySelector('.legend-percentage');
+            if (countEl) countEl.textContent = negatifCount;
+            if (percEl) percEl.textContent = `${negatifPercent}% dari total`;
+        }
+        
+        if (legendItems[2]) {
+            const countEl = legendItems[2].querySelector('.legend-count');
+            const percEl = legendItems[2].querySelector('.legend-percentage');
+            if (countEl) countEl.textContent = promosiCount;
+            if (percEl) percEl.textContent = `${promosiPercent}% dari total`;
+        }
+        
+        const donutTotal = document.querySelector('.donut-total');
+        if (donutTotal) donutTotal.textContent = total;
+        
+        // Update metadata
+        const docTotal = document.getElementById('docTotal');
+        if (docTotal) docTotal.textContent = `${total} tweets`;
+    }
+
+    // ===== UPDATE DONUT CHART =====
+    function updateDonutChart() {
+        const { positifCount, negatifCount, promosiCount } = extractClassificationCounts();
+        const total = positifCount + negatifCount + promosiCount;
+        
+        const positifPercent = total > 0 ? Math.round((positifCount / total) * 100) : 0;
+        const negatifPercent = total > 0 ? Math.round((negatifCount / total) * 100) : 0;
+        const promosiPercent = total > 0 ? Math.round((promosiCount / total) * 100) : 0;
+        
+        const donutChart = document.getElementById('donutChart');
+        if (donutChart) {
+            const positifStop = positifPercent;
+            const negatifStop = positifPercent + negatifPercent;
+            
+            const gradient = `conic-gradient(
+                #51cf66 0% ${positifStop}%,
+                #ff6b6b ${positifStop}% ${negatifStop}%,
+                #ffd43b ${negatifStop}% 100%
+            )`;
+            
+            donutChart.style.background = gradient;
+        }
+        
+        window.donutChartData = {
+            positifCount, negatifCount, promosiCount,
+            positifPercent, negatifPercent, promosiPercent,
+            total
+        };
+    }
+
+    // ===== DONUT CHART INTERACTIVITY =====
+    function initDonutChart() {
+        const donutChart = document.getElementById('donutChart');
+        const tooltip = document.getElementById('donutTooltip');
+        
+        if (!donutChart || !tooltip) return;
+
+        donutChart.addEventListener('mousemove', e => {
+            const rect = donutChart.getBoundingClientRect();
+            const cx = rect.left + rect.width / 2;
+            const cy = rect.top + rect.height / 2;
+            const angle = Math.atan2(e.clientY - cy, e.clientX - cx);
+            const deg = (angle * 180 / Math.PI + 360) % 360;
+            
+            const data = window.donutChartData || {
+                positifPercent: 0,
+                negatifPercent: 0,
+                promosiPercent: 0,
+                positifCount: 0,
+                negatifCount: 0,
+                promosiCount: 0
+            };
+            
+            const positifDeg = (data.positifPercent / 100) * 360;
+            const negatifDeg = (data.negatifPercent / 100) * 360;
+            
+            let text = '';
+            if (deg >= 0 && deg < positifDeg) {
+                text = `Positif: ${data.positifCount || 0} tweets (${data.positifPercent}%)`;
+            } else if (deg >= positifDeg && deg < positifDeg + negatifDeg) {
+                text = `Negatif: ${data.negatifCount || 0} tweets (${data.negatifPercent}%)`;
+            } else {
+                text = `Netral/Promosi: ${data.promosiCount || 0} tweets (${data.promosiPercent}%)`;
+            }
+            
+            tooltip.textContent = text;
+            tooltip.style.left = e.pageX + 10 + 'px';
+            tooltip.style.top = e.pageY - 30 + 'px';
+            tooltip.classList.add('active');
+        });
+        
+        donutChart.addEventListener('mouseleave', () => tooltip.classList.remove('active'));
+    }
+
+    // ===== DETAIL MODAL (DIPERBAIKI) =====
+    function showDetailModal(type) {
+        const modal = document.getElementById('detailModal');
+        const modalTitle = document.getElementById('modalTitle');
+        const tweetList = document.getElementById('tweetList');
+        
+        const title = type === 'positive' ? 'Detail Tweet Positif' : 'Detail Tweet Negatif';
+        modalTitle.textContent = title;
+        
+        let tweets = [];
+        if (rawDataForKeywords.length > 0) {
+            tweets = rawDataForKeywords
+                .filter(item => {
+                    if (!item || typeof item !== 'object') return false;
+
+                    const raw = item.klasifikasi || item.sentiment || item.category || item.label || item.classification || '';
+                    const klasifikasi = normalizeClassification(raw);
+
+                    if (type === 'positive') return klasifikasi === 'positif';
+                    if (type === 'negative') return klasifikasi === 'negatif';
+                    return false;
+                })
+                .map(item => ({
+                    username: item.username || item.user || '@user',
+                    fullText: item.fullText || item.text || item.tweet || item.full_text || 'No text available',
+                    createdAt: item.createdAt || item.date || item.created_at || 'Unknown date',
+                    keyword: item.keyword || item.key_word || '',
+                    sentiment: item.klasifikasi || item.sentiment || 'Unknown'
+                }))
+                .slice(0, 10);
+        }
+        
+        if (tweets.length === 0) {
+            tweetList.innerHTML = `
+                <div style="text-align: center; padding: 40px; color: #6c757d;">
+                    <i class="fas fa-file-upload" style="font-size: 48px; margin-bottom: 20px; display: block;"></i>
+                    Tidak ada data tweet ${type === 'positive' ? 'positif' : 'negatif'}
+                    <h3>Tidak ada data tweet ${type === 'positive' ? 'positif' : 'negatif'}</h3>
+                    <p>${rawDataForKeywords.length === 0 ? 'Silakan upload file CSV terlebih dahulu.' : 'Tidak ditemukan tweet dengan klasifikasi ini.'}</p>
+                </div>
+            `;
+        } else {
+            tweetList.innerHTML = tweets.map(t => `
+                <div class="tweet-item">
+                    <div class="tweet-header">
+                        <div class="tweet-user"><i class="fas fa-user-circle"></i> ${t.username}</div>
+                        <div class="tweet-sentiment" style="color: ${type === 'positive' ? '#51cf66' : '#ff6b6b'}">
+                            ${t.sentiment}
+                        </div>
+                    </div>
+                    <div class="tweet-keyword"><strong>Keyword:</strong> ${t.keyword || 'Tidak ada'}</div>
+                    <div class="tweet-text">${t.fullText}</div>
+                    <div class="tweet-meta"><i class="fas fa-calendar-alt"></i> ${t.createdAt}</div>
+                </div>
+            `).join('');
+        }
+        
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeDetailModal() {
+        document.getElementById('detailModal').classList.remove('active');
+        document.body.style.overflow = 'auto';
+    }
+
+    // ===== SHARE MODAL & FUNCTIONS =====
+    function showShareModal() {
+        const modal = document.getElementById('shareModal');
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeShareModal() {
+        document.getElementById('shareModal').classList.remove('active');
+        document.body.style.overflow = 'auto';
+    }
+
+    function copyShareUrl() {
+        const urlInput = document.getElementById('shareUrl');
+        const copySuccess = document.getElementById('copySuccess');
+        
+        urlInput.select();
+        urlInput.setSelectionRange(0, 99999);
+        
+        navigator.clipboard.writeText(urlInput.value)
+            .then(() => {
+                copySuccess.style.display = 'block';
+                setTimeout(() => {
+                    copySuccess.style.display = 'none';
+                }, 3000);
+                showToast('Success', 'URL berhasil disalin ke clipboard!', 'success');
+            })
+            .catch(err => {
+                document.execCommand('copy');
+                copySuccess.style.display = 'block';
+                setTimeout(() => {
+                    copySuccess.style.display = 'none';
+                }, 3000);
+                showToast('Success', 'URL berhasil disalin ke clipboard!', 'success');
+            });
+    }
+
+    // Share functions
+    function shareViaWhatsApp() {
+        const text = "Check out this sentiment analysis dashboard!";
+        const url = document.getElementById('shareUrl').value;
+        window.open(`https://wa.me/?text=${encodeURIComponent(text + " " + url)}`, '_blank');
+        closeShareModal();
+    }
+
+    function shareViaGmail() {
+        const subject = "Sentiment Analysis Dashboard";
+        const body = "I found this interesting sentiment analysis dashboard:\n\n" + 
+                    document.getElementById('shareUrl').value + 
+                    "\n\nCheck it out!";
+        window.open(`mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`, '_blank');
+        closeShareModal();
+    }
+
+    function shareViaLine() {
+        const text = "Check out this sentiment analysis dashboard! " + document.getElementById('shareUrl').value;
+        window.open(`https://social-plugins.line.me/lineit/share?url=${encodeURIComponent(document.getElementById('shareUrl').value)}&text=${encodeURIComponent(text)}`, '_blank');
+        closeShareModal();
+    }
+
+    function shareViaTelegram() {
+        const text = "📊 Sentiment Analysis Dashboard\n\n" + document.getElementById('shareUrl').value;
+        window.open(`https://t.me/share/url?url=${encodeURIComponent(document.getElementById('shareUrl').value)}&text=${encodeURIComponent(text)}`, '_blank');
+        closeShareModal();
+    }
+
+    function shareViaFacebook() {
+        window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(document.getElementById('shareUrl').value)}`, '_blank');
+        closeShareModal();
+    }
+
+    function shareViaTwitter() {
+        const text = "Check out this sentiment analysis dashboard! #SentimentAnalysis #DataViz";
+        window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(document.getElementById('shareUrl').value)}`, '_blank');
+        closeShareModal();
+    }
+
+    // ===== PROFILE DROPDOWN =====
+    function initProfileDropdown() {
+        const profileToggle = document.getElementById('profileToggle');
+        const profileDropdown = document.getElementById('profileDropdown');
+        const dropdownOverlay = document.getElementById('dropdownOverlay');
+        
+        if (!profileToggle || !profileDropdown || !dropdownOverlay) return;
+        
+        function showDropdown() {
+            profileDropdown.classList.add('show');
+            dropdownOverlay.style.display = 'block';
+            setTimeout(() => {
+                dropdownOverlay.classList.add('show');
+            }, 10);
+        }
+
+        function hideDropdown() {
+            profileDropdown.classList.remove('show');
+            dropdownOverlay.classList.remove('show');
+            setTimeout(() => {
+                dropdownOverlay.style.display = 'none';
+            }, 300);
+        }
+
+        profileToggle.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const isShowing = profileDropdown.classList.contains('show');
+            if (isShowing) hideDropdown(); else showDropdown();
+        });
+
+        dropdownOverlay.addEventListener('click', hideDropdown);
+        document.addEventListener('click', (e) => {
+            if (!profileToggle.contains(e.target) && !profileDropdown.contains(e.target)) {
+                hideDropdown();
+            }
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') hideDropdown();
+        });
+
+        // Profile dropdown handlers
+        document.getElementById('dropdownProfile')?.addEventListener('click', (e) => {
+            e.preventDefault();
+            hideDropdown();
+            showToast('Info', 'Profile settings coming soon', 'info');
+        });
+
+        document.getElementById('dropdownAppearance')?.addEventListener('click', (e) => {
+            e.preventDefault();
+            hideDropdown();
+            showToast('Info', 'Appearance settings coming soon', 'info');
+        });
+
+        document.getElementById('dropdownSecurity')?.addEventListener('click', (e) => {
+            e.preventDefault();
+            hideDropdown();
+            showToast('Info', 'Security settings coming soon', 'info');
+        });
+
+        document.getElementById('dropdownLogout')?.addEventListener('click', (e) => {
+            e.preventDefault();
+            hideDropdown();
+            const confirmLogout = confirm('Are you sure you want to logout?');
+            if (confirmLogout) {
+                localStorage.clear();
+                showToast('Info', 'Logged out successfully', 'info');
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 1000);
+            }
+        });
+    }
+
+    // ===== EXPORT DROPDOWN =====
+    function initExportDropdown() {
+        const exportBtn = document.getElementById('exportBtn');
+        const exportDropdown = document.getElementById('exportDropdown');
+        const exportDropdownOverlay = document.getElementById('exportDropdownOverlay');
+        
+        if (!exportBtn || !exportDropdown || !exportDropdownOverlay) return;
+        
+        let isDropdownOpen = false;
+        
+        function showExportDropdown() {
+            exportBtn.closest('.export-dropdown-container').classList.add('active');
+            document.body.classList.add('export-dropdown-active');
+            exportDropdown.classList.add('show');
+            exportDropdown.style.display = 'block';
+            exportDropdownOverlay.style.display = 'block';
+            setTimeout(() => {
+                exportDropdownOverlay.classList.add('show');
+            }, 10);
+            isDropdownOpen = true;
+        }
+
+        function hideExportDropdown() {
+            exportBtn.closest('.export-dropdown-container').classList.remove('active');
+            document.body.classList.remove('export-dropdown-active');
+            exportDropdown.classList.remove('show');
+            exportDropdownOverlay.classList.remove('show');
+            setTimeout(() => {
+                exportDropdown.style.display = 'none';
+                exportDropdownOverlay.style.display = 'none';
+            }, 300);
+            isDropdownOpen = false;
+        }
+
+        exportBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            if (isDropdownOpen) hideExportDropdown(); else showExportDropdown();
+        });
+
+        exportDropdownOverlay.addEventListener('click', hideExportDropdown);
+        
+        document.addEventListener('click', function(e) {
+            if (!isDropdownOpen) return;
+            const isClickInsideDropdown = exportDropdown.contains(e.target);
+            const isClickOnButton = exportBtn.contains(e.target);
+            if (!isClickInsideDropdown && !isClickOnButton) {
+                hideExportDropdown();
+            }
+        });
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && isDropdownOpen) {
+                hideExportDropdown();
+            }
+        });
+    }
+
+    // ===== EXPORT FUNCTIONS =====
+    async function downloadAsPDF() {
+        showToast('Info', 'Fitur export PDF akan segera tersedia', 'info');
+    }
+
+    async function downloadAsPNG() {
+        showToast('Info', 'Fitur export PNG akan segera tersedia', 'info');
+    }
+
+    async function downloadAsJPEG() {
+        showToast('Info', 'Fitur export JPEG akan segera tersedia', 'info');
+    }
+
+    async function copyToClipboard() {
+        showToast('Info', 'Fitur copy to clipboard akan segera tersedia', 'info');
+    }
+
+    function printDashboard() {
+        window.print();
+        showToast('Info', 'Membuka dialog print...', 'info');
+    }
+
+    // ===== UPDATE DASHBOARD METADATA =====
+    function updateDashboardMetadata() {
+        const docDate = document.getElementById('docDate');
+        const docKeyword = document.getElementById('docKeyword');
+        const docTotal = document.getElementById('docTotal');
+        
+        if (docDate) {
+            docDate.textContent = new Date().toLocaleDateString('id-ID', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+        }
+        
+        if (docKeyword) {
+            if (rawDataForKeywords.length > 0) {
+                const keywords = [...new Set(rawDataForKeywords
+                    .map(item => item.keyword || item.key_word)
+                    .filter(k => k && k.trim() !== '')
+                    .slice(0, 3))];
+                docKeyword.textContent = keywords.join(', ') || '-';
+            }
+        }
+        
+        if (docTotal) {
+            const { positifCount, negatifCount, promosiCount } = extractClassificationCounts();
+            const total = positifCount + negatifCount + promosiCount;
+            docTotal.textContent = `${total} tweets`;
+        }
+    }
+
+    // ===== INITIALIZATION =====
+    document.addEventListener('DOMContentLoaded', async () => {
+        console.log('🚀 Dashboard initialization started...');
+        
+        // Set theme
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+
+        // Initialize tabs system
+        await initializeTabsSystem();
+        
+        // Jika tidak ada tabs system (single file), load data biasa
+        if (Object.keys(allUploadedFiles).length === 0) {
+            if (await loadAnalysisData()) {
+                updateDashboardWithData();
+                updateDashboardMetadata();
+                showToast('Success', 'Data analisis berhasil dimuat!', 'success');
+            }
+        } else if (Object.keys(allUploadedFiles).length === 1) {
+            // Single file mode (no tabs UI)
+            const fileId = Object.keys(allUploadedFiles)[0];
+            activateTab(fileId);
+            updateDashboardMetadata();
+            showToast('Success', 'Data analisis berhasil dimuat!', 'success');
+        } else {
+            // Multiple files mode (tabs UI sudah ditampilkan)
+            showToast('Success', `${Object.keys(allUploadedFiles).length} file berhasil dimuat!`, 'success');
+        }
+
+        // Initialize components
+        initDonutChart();
+        initExportDropdown();
+        initProfileDropdown();
+
+        // Set active nav link
+        const dashboardLink = document.querySelector('.nav-link[href="dashboard.html"]');
+        const homeLink = document.querySelector('.nav-link[href="index.html"]');
+        
+        if (dashboardLink) dashboardLink.classList.add('active');
+        if (homeLink) homeLink.classList.remove('active');
+
+        // Event listeners
+        document.getElementById('shareBtn')?.addEventListener('click', showShareModal);
+
+        // Close modals on outside click
+        document.addEventListener('click', (e) => {
+            const shareModal = document.getElementById('shareModal');
+            const detailModal = document.getElementById('detailModal');
+            
+            if (shareModal && shareModal.classList.contains('active') && 
+                !e.target.closest('.modal-content') && 
+                !e.target.closest('#shareBtn')) {
+                closeShareModal();
+            }
+            
+            if (detailModal && detailModal.classList.contains('active') && 
+                !e.target.closest('.modal-content') && 
+                !e.target.closest('.btn-detail')) {
+                closeDetailModal();
+            }
+        });
+
+        // Close modals on escape
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                if (document.getElementById('shareModal')?.classList.contains('active')) {
+                    closeShareModal();
+                }
+                if (document.getElementById('detailModal')?.classList.contains('active')) {
+                    closeDetailModal();
+                }
+            }
+        });
+
+        console.log('✅ Dashboard initialization complete');
+    });
+</script>
+
+</body>
+
+</html>

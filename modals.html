@@ -1,0 +1,350 @@
+<!-- MODALS.HTML - Modal Components -->
+<!-- Include this file in your main HTML files -->
+
+<!-- PROFILE MODAL -->
+<div id="profileModal" class="modal">
+    <div class="modal-content profile-modal">
+        <div class="modal-header">
+            <h2><i class="fas fa-user-circle"></i> Profile Settings</h2>
+            <button class="modal-close">&times;</button>
+        </div>
+        
+        <div class="modal-body">
+            <!-- Profile Photo Section -->
+            <div class="profile-photo-section">
+                <div class="photo-preview" id="profilePhotoPreview">
+                    <i class="fas fa-user" id="currentProfileIcon"></i>
+                    <div class="photo-overlay">
+                        <i class="fas fa-camera"></i>
+                    </div>
+                </div>
+                <button class="btn-change-photo" onclick="triggerPhotoUpload()">
+                    <i class="fas fa-camera"></i> Change Profile Photo
+                </button>
+                <input type="file" id="profilePhotoInput" accept="image/*" hidden>
+            </div>
+            
+            <!-- Form Section -->
+            <div class="form-section">
+                <div class="form-group">
+                    <label for="profileName">
+                        <i class="fas fa-user"></i> Full Name
+                    </label>
+                    <input type="text" id="profileName" placeholder="Enter your full name">
+                </div>
+                
+                <div class="form-group">
+                    <label for="profileEmail">
+                        <i class="fas fa-envelope"></i> Email Address
+                    </label>
+                    <input type="email" id="profileEmail" placeholder="Enter your email address">
+                </div>
+                
+                <div class="form-group">
+                    <label for="profileAbout">
+                        <i class="fas fa-info-circle"></i> About
+                    </label>
+                    <textarea id="profileAbout" placeholder="Tell us about yourself..." rows="3"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label>
+                        <i class="fas fa-calendar-alt"></i> Member Since
+                    </label>
+                    <div class="readonly-field" id="memberSince">Loading...</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="modal-footer">
+            <div class="profile-actions">
+                <button class="btn-save-profile" onclick="saveProfile()">
+                    <i class="fas fa-save"></i> Save Changes
+                </button>
+                <button class="btn-delete-account" onclick="showDeleteConfirm()">
+                    <i class="fas fa-trash"></i> Delete Account
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- APPEARANCE MODAL -->
+<div id="appearanceModal" class="modal">
+    <div class="modal-content appearance-modal">
+        <div class="modal-header">
+            <h2><i class="fas fa-palette"></i> Appearance</h2>
+            <button class="modal-close">&times;</button>
+        </div>
+        
+        <div class="modal-body">
+            <!-- Theme Selection -->
+            <div class="theme-section">
+                <h3><i class="fas fa-adjust"></i> Theme</h3>
+                <div class="theme-options">
+                    <div class="theme-option" data-theme="light" onclick="setTheme('light')">
+                        <div class="theme-preview light">
+                            <div class="preview-header"></div>
+                            <div class="preview-content">
+                                <div class="preview-item"></div>
+                                <div class="preview-item"></div>
+                            </div>
+                        </div>
+                        <div class="theme-label">
+                            <i class="fas fa-sun"></i> Light
+                        </div>
+                    </div>
+                    
+                    <div class="theme-option active" data-theme="dark" onclick="setTheme('dark')">
+                        <div class="theme-preview dark">
+                            <div class="preview-header"></div>
+                            <div class="preview-content">
+                                <div class="preview-item"></div>
+                                <div class="preview-item"></div>
+                            </div>
+                        </div>
+                        <div class="theme-label">
+                            <i class="fas fa-moon"></i> Dark
+                        </div>
+                    </div>
+                    
+                    <div class="theme-option" data-theme="auto" onclick="setTheme('auto')">
+                        <div class="theme-preview auto">
+                            <div class="preview-header"></div>
+                            <div class="preview-content">
+                                <div class="preview-item"></div>
+                                <div class="preview-item"></div>
+                            </div>
+                        </div>
+                        <div class="theme-label">
+                            <i class="fas fa-adjust"></i> System
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Color Selection -->
+            <div class="color-section">
+                <h3><i class="fas fa-fill-drip"></i> Accent Color</h3>
+                <div class="color-options">
+                    <div class="color-option" style="background: #22b8cf;" onclick="setAccentColor('#22b8cf')"></div>
+                    <div class="color-option" style="background: #6c5ce7;" onclick="setAccentColor('#6c5ce7')"></div>
+                    <div class="color-option" style="background: #00b894;" onclick="setAccentColor('#00b894')"></div>
+                    <div class="color-option" style="background: #e84393;" onclick="setAccentColor('#e84393')"></div>
+                    <div class="color-option" style="background: #fd79a8;" onclick="setAccentColor('#fd79a8')"></div>
+                    <div class="color-option" style="background: #fdcb6e;" onclick="setAccentColor('#fdcb6e')"></div>
+                </div>
+            </div>
+            
+            <!-- Additional Settings -->
+            <div class="additional-settings">
+                <div class="setting-item">
+                    <div class="setting-label">
+                        <i class="fas fa-layer-group"></i>
+                        <span>Glassmorphism Effect</span>
+                    </div>
+                    <div class="setting-control">
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="glassEffectToggle" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="setting-item">
+                    <div class="setting-label">
+                        <i class="fas fa-magic"></i>
+                        <span>Animations</span>
+                    </div>
+                    <div class="setting-control">
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="animationsToggle" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="modal-footer">
+            <button class="btn-save-profile" onclick="applyAppearanceSettings()">
+                <i class="fas fa-check"></i> Apply Changes
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- SECURITY MODAL -->
+<div id="securityModal" class="modal">
+    <div class="modal-content security-modal">
+        <div class="modal-header">
+            <h2><i class="fas fa-shield-alt"></i> Security</h2>
+            <button class="modal-close">&times;</button>
+        </div>
+        
+        <div class="modal-body">
+            <!-- Password Change -->
+            <div class="security-section">
+                <h3><i class="fas fa-key"></i> Change Password</h3>
+                <div class="password-form">
+                    <div class="form-group">
+                        <input type="password" id="currentPassword" placeholder="Current password">
+                    </div>
+                    <div class="form-group">
+                        <input type="password" id="newPassword" placeholder="New password">
+                    </div>
+                    <div class="form-group">
+                        <input type="password" id="confirmPassword" placeholder="Confirm new password">
+                    </div>
+                    <button class="btn-update-password" onclick="updatePassword()">
+                        <i class="fas fa-sync-alt"></i> Update Password
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Two-Factor Authentication -->
+            <div class="security-section">
+                <h3><i class="fas fa-mobile-alt"></i> Two-Factor Authentication</h3>
+                <div class="twofa-section">
+                    <div class="twofa-info">
+                        <div class="twofa-icon">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <div class="twofa-text">
+                            <h4>Enhanced Security</h4>
+                            <p>Add an extra layer of protection to your account</p>
+                        </div>
+                    </div>
+                    <div class="setting-control">
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="toggle2FA">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Active Sessions -->
+            <div class="security-section">
+                <h3><i class="fas fa-desktop"></i> Active Sessions</h3>
+                <div class="sessions-list" id="sessionsList">
+                    <!-- Sessions will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- LOGOUT MODAL -->
+<div id="logoutModal" class="modal">
+    <div class="modal-content logout-modal">
+        <div class="logout-icon">
+            <i class="fas fa-sign-out-alt"></i>
+        </div>
+        <h2>Logout?</h2>
+        <p>Are you sure you want to logout from your account?</p>
+        <div class="logout-buttons">
+            <button class="btn-cancel-logout" onclick="closeModal('logoutModal')">
+                Cancel
+            </button>
+            <button class="btn-confirm-logout" onclick="confirmLogout()">
+                <i class="fas fa-sign-out-alt"></i> Yes, Logout
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- DELETE CONFIRMATION MODAL -->
+<div id="deleteConfirmModal" class="modal">
+    <div class="modal-content delete-confirm-modal">
+        <div class="delete-icon">
+            <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <h2>Delete Account</h2>
+        <p>This action cannot be undone. This will permanently delete your account and all associated data.</p>
+        
+        <div class="delete-warning">
+            <h4><i class="fas fa-exclamation-circle"></i> Warning</h4>
+            <ul>
+                <li>All your analysis data will be deleted</li>
+                <li>Your profile information will be removed</li>
+                <li>This action is irreversible</li>
+            </ul>
+        </div>
+        
+        <p>Type <strong>DELETE</strong> to confirm:</p>
+        <input type="text" id="confirmDeleteInput" class="confirm-delete-input" placeholder="Type DELETE here">
+        
+        <div class="delete-buttons">
+            <button class="btn-cancel-delete" onclick="closeModal('deleteConfirmModal')">
+                <i class="fas fa-times"></i> Cancel
+            </button>
+            <button class="btn-proceed-delete" onclick="confirmDeleteAccount()" disabled>
+                <i class="fas fa-trash"></i> Delete Account
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- TOAST STYLES (to be added to main CSS) -->
+<style>
+    .toast-container {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        z-index: 10000;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        max-width: 380px;
+    }
+    
+    .custom-toast {
+        background: var(--bg-secondary);
+        border: 1px solid var(--glass-border);
+        border-radius: 12px;
+        padding: 16px 20px;
+        box-shadow: var(--glass-shadow);
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        transform: translateX(120%);
+        opacity: 0;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    
+    .custom-toast.show {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    
+    .custom-toast i {
+        font-size: 20px;
+    }
+    
+    .toast-success i { color: var(--success-color); }
+    .toast-error i { color: var(--danger-color); }
+    .toast-warning i { color: var(--warning-color); }
+    .toast-info i { color: var(--accent-color); }
+    
+    .custom-toast span {
+        flex: 1;
+        font-weight: 500;
+        font-size: 14px;
+    }
+    
+    .toast-close {
+        background: none;
+        border: none;
+        color: var(--text-secondary);
+        cursor: pointer;
+        padding: 4px;
+        border-radius: 4px;
+        transition: all 0.3s;
+    }
+    
+    .toast-close:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: var(--text-primary);
+    }
+</style>
